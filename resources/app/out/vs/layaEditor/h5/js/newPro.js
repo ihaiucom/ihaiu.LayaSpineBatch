@@ -846,13 +846,14 @@ function popLayerWindow()
     this.btnOK.style.left = "206px"
     this.btnOK.innerText = `${codeMain.panel[23][langindex]}`//"确定";
 }
-function bonetools(title, type)
+function bonetools(title, type, isBatch = false)
 {
     var bonetoolsWindow = new popLayerWindow();
     bonetoolsWindow.titleBackground.innerHTML = title + `${codeMain.panel[24][langindex]}`//"格式转换";
     bonetoolsWindow.fileInput.placeholder = `${codeMain.panel[25][langindex]}`//"拖入或者选择资源目录...";
     bonetoolsWindow.fileOutput.placeholder = `${codeMain.panel[26][langindex]}`// "选择资源输出路径...";
-    var boneObj = localStorage.getItem("layabonePath");
+    var localStrageKey = isBatch ? "layabonePathBatch" : "layabonePath";
+    var boneObj = localStorage.getItem(localStrageKey);
     if (boneObj)
     {
         boneObj = JSON.parse(boneObj);
@@ -890,7 +891,7 @@ function bonetools(title, type)
                 "inputPath": bonetoolsWindow.fileInput.value,
                 "outputPath": bonetoolsWindow.fileOutput.value
             };
-            localStorage.setItem("layabonePath", JSON.stringify(boneObj));
+            localStorage.setItem(localStrageKey, JSON.stringify(boneObj));
             bonetoolsWindow.viewPanel.appendChild(myCanvas);
             myCanvas.style.display = "block";
             bonetoolsWindow.popPanelBackground.style.display = "none";
@@ -922,7 +923,7 @@ function bonetools(title, type)
             }, function(err)
             {
                 alert(`${codeMain.panel[28][langindex]}` + err);
-            }, type)
+            }, type, isBatch)
         }
 
     };
