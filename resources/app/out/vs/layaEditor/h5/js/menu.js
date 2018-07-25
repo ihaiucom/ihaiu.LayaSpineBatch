@@ -286,7 +286,6 @@
         <item id="tool.tpgCompress" text="${codeMain.getMenuListLang(182)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
-        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.psdConvert" text="Psd2UI"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
         <item id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
@@ -469,7 +468,6 @@
         <item id="tool.tpgCompress" text="${codeMain.getMenuListLang(182)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
-        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.psdConvert" text="Psd2UI"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
         <item id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
@@ -605,7 +603,6 @@
         <item id="tool.tpgCompress" text="${codeMain.getMenuListLang(182)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
-        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
         <item id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
         <item id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>

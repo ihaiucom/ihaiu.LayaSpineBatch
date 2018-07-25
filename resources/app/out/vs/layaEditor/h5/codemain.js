@@ -909,9 +909,6 @@ class CodeMain extends EventEmitter {
             case "tool.spineConvert":
                 bonetools("Spine" + dragonBones.BoneAniTools.SpineTip, 1);
                 break;
-            case "tool.spineConvertBatch":
-                bonetools("批量Spine" + dragonBones.BoneAniTools.SpineTip, 1, true);
-                break;
             case "tool.psdConvert":
                 psdtools("Psd to UI", 1);
                 break;
