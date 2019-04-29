@@ -1848,7 +1848,7 @@
 		__proto.batchRun = function ()
 		{
 			
-			alert("this.mInPath=" + this.mInPath);
+			// alert("this.mInPath=" + this.mInPath);
 			var _$this = this;
 			var tInfo = "";
 			var imgList = this.imgList = [];
@@ -1856,7 +1856,7 @@
 			var styles = this.fs.readdirSync(this.mInPath);
 			styles.forEach(function (stylename)
 			{
-			alert("stylename=" + stylename);
+			// alert("stylename=" + stylename);
 				var styleDir = _$this.nodePath.join(_$this.mInPath, stylename);
 				var stats = _$this.fs.statSync(styleDir);
 				if (stats.isDirectory())
@@ -1879,7 +1879,7 @@
 
 
 						
-			alert("tInfo=" + tInfo);
+			// alert("tInfo=" + tInfo);
 			this._totalNum = imgList.length;
 			this._completeNum = 0;
 			this.batchNext();
