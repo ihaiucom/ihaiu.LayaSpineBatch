@@ -1,3 +1,10 @@
+/**
+ * 需要新建项目，配置 h5/config/newProInfo.js
+ * 检查 codeMain.createNewPro 函数
+ */
+const EthUtil = require('ethereumjs-util');
+const NEOWorker = require("./../../../layarepublic/blockchain/NEOBlock/index");
+
 function NewProLaya()
 {
     //var layaProObj ={"proPathSelect":proFilePath.value,"engineType":engineTypeVersion.selectedIndex,proTypeSelect:proSelectType.selectedIndex}
@@ -22,174 +29,132 @@ function NewProLaya()
     var _layaProType = 1;
     //创建背景容器
     var layaLayerPop = getElement("div", "layaLayerPop");
-    layaLayerPop.style.zIndex = 99999999
+    layaLayerPop.style.zIndex = 199999999
     // document.body.appendChild(layaLayerPop);
     codeMain.addPopLayer(layaLayerPop);
     //创建背景
     var layerBackground = getElement("div", "layerBackground");
     layaLayerPop.appendChild(layerBackground);
+    var newProTitle = getElement("div", "common-tool-title");
+    newProTitle.innerHTML = `
+        <div class="common-tool-icon-wrapper">
+            <img class="common-tool-icon" title="${codeMain.getPanelLang(122)}" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+        </div>
+        <div class="common-tool-title-content">${codeMain.getPanelLang(122)}</div>
+        <div class="common-tool-close"></div>
+    `;
+    layerBackground.appendChild(newProTitle);
+    __Layadrag(layaLayerPop, newProTitle)
+    newProTitle.getElementsByClassName("common-tool-close")[0].onclick = function() {
+        codeMain.removePopLayer(layaLayerPop);
+    }
     var layerBackgroundleftPanel = getElement("div", "layerBackgroundleftPanel");
     layerBackground.appendChild(layerBackgroundleftPanel);
     var title = getElement("a");
     layerBackgroundleftPanel.appendChild(title);
     title.innerText = codeMain.getPanelLang(122) //" 新建项目";
-        //////////------------------------
-    var listPro = getElement("li", "listPro");
-    layerBackgroundleftPanel.appendChild(listPro);
-    listPro.style.backgroundColor = "#094771";
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/01.png";
-    listPro.appendChild(img);
-    var title = getElement("a", "");
-    title.innerHTML = `${codeMain.getPanelLang(1)}`;
-    listPro.appendChild(title);
-    currentSelectedLi = listPro;
-    listPro.onmousedown = mouseDownHandler;
-    /////-------------------------------
-    var listPro = getElement("li", "listPro");
-    layerBackgroundleftPanel.appendChild(listPro);
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/02.png";
-    listPro.appendChild(img);
-    var title = getElement("a", "");
-
-    title.innerHTML = `${codeMain.getPanelLang(2)}`;
-    listPro.appendChild(title);
-    listPro.onmousedown = mouseDownHandler;
-    //---------------------
-    var listPro = getElement("li", "listPro");
-    layerBackgroundleftPanel.appendChild(listPro);
-    // listPro.style.display ="none"
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/03.png";
-    listPro.appendChild(img);
-    var title = getElement("a", "");
-    title.innerHTML = `${codeMain.getPanelLang(3)}`;
-    listPro.appendChild(title);
-    listPro.onmousedown = mouseDownHandler;
-    //----------- facebook --------------
-    var listPro = getElement("li", "listPro");
-    layerBackgroundleftPanel.appendChild(listPro);
-    // listPro.style.display ="none"
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/04.png";
-    listPro.appendChild(img);
-    var title = getElement("a", "");
-    title.innerHTML = `${codeMain.getPanelLang(234)}`;
-    listPro.appendChild(title);
-    listPro.onmousedown = mouseDownHandler;
-    //------------ wxminigame ---------------
-    var listPro = getElement("li", "listPro");
-    layerBackgroundleftPanel.appendChild(listPro);
-    // listPro.style.display ="none"
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/05.png";
-    listPro.appendChild(img);
-    var title = getElement("a", "");
-    title.innerHTML = `${codeMain.getPanelLang(241)}`;
-    listPro.appendChild(title);
-    listPro.onmousedown = mouseDownHandler;
-    //------------ wxminigame 3d ---------------
-    var listPro = getElement("li", "listPro");
-    layerBackgroundleftPanel.appendChild(listPro);
-    // listPro.style.display ="none"
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/06.png";
-    listPro.appendChild(img);
-    var title = getElement("a", "");
-    title.innerHTML = `${codeMain.getPanelLang(245)}`;
-    listPro.appendChild(title);
-    listPro.onmousedown = mouseDownHandler;
-
+    // 左侧项目类型选择
+    let newProObj;
+    for (let i = 0; i < codeMain.newProInfoList.length; i++) {
+        newProObj = codeMain.newProInfoList[i];
+        if (newProObj.issecret && !codeMain.isLayaSecretMode) {
+            continue;
+        }
+        var listPro = getElement("li", "listPro");
+        layerBackgroundleftPanel.appendChild(listPro);
+        listPro.setAttribute("data-index", i);
+        var img = getElement("div", "");
+        img.className = "small-icon " + newProObj["imgIcon"];
+        listPro.appendChild(img);
+        var title = getElement("a", "");
+        title.innerHTML = newProObj["proName"];
+        listPro.appendChild(title);
+        var triangle = getElement("div", "triangle");
+        listPro.appendChild(triangle);
+        if (i === 0) {
+            currentSelectedLi = listPro;
+            currentSelectedLi.className += " selected";
+        }
+        listPro.onmousedown = mouseDownHandler;
+    }
 
     //----------右边容器
     var layerBackgroundrightPanel = getElement("div", "layerBackgroundrightPanel");
     layerBackground.appendChild(layerBackgroundrightPanel);
-    var img = getElement("img", "");
-    img.src = "res/ide/icon/01b.png";
+    var img = getElement("dic", "");
+    img.className = "img-icon image-big-01b";
     layerBackgroundrightPanel.appendChild(img);
     var title = getElement("a", "");
     title.innerHTML = `${codeMain.getPanelLang(1)}`;
-    title.style.fontSize = "16px"
+    title.style.fontSize = "14px"
     layerBackgroundrightPanel.appendChild(title);
 
     function mouseDownHandler(e)
     {
         e.stopImmediatePropagation();
-        currentSelectedLi.style.backgroundColor = "";
+        currentSelectedLi.className = currentSelectedLi.className.replace(" selected", "");
         currentSelectedLi = e.currentTarget;
-        currentSelectedLi.style.backgroundColor = "#094771";
-        if (currentSelectedLi.outerText.indexOf(`${codeMain.getPanelLang(1)}`) != -1)
-        {
-            img.src = "res/ide/icon/01b.png";
-            _layaProType = 1;
-        }
-        else if (currentSelectedLi.outerText.indexOf(`${codeMain.getPanelLang(2)}`) != -1)
-        {
-            img.src = "res/ide/icon/02b.png";
-            _layaProType = 0;
-        }
-        else if (currentSelectedLi.outerText.indexOf(`${codeMain.getPanelLang(3)}`) != -1)
-        {
-            img.src = "res/ide/icon/03b.png";
-            _layaProType = 2;
-        }
-        else if (currentSelectedLi.outerText.indexOf(`${codeMain.getPanelLang(241)}`) != -1)
-        {
-            img.src = "res/ide/icon/05b.png";
-            _layaProType = 4;
-        }
-        else if (currentSelectedLi.outerText.indexOf(`${codeMain.getPanelLang(245)}`) != -1)
-        {
-            img.src = "res/ide/icon/06b.png";
-            _layaProType = 5;
-        }
-        else
-        {
-            img.src = "res/ide/icon/04b.png";
-            _layaProType = 3;
-        }
+        currentSelectedLi.className += " selected";
+        let index = currentSelectedLi.getAttribute('data-index');
+        img.className = "img-icon " + codeMain.newProInfoList[index].imgSrc;
+        _layaProType = codeMain.newProInfoList[index].layaProType;
         title.innerHTML = currentSelectedLi.outerText + "&nbsp;";
+        if (_layaProType === 8) {
+            proNameLaya.setAttribute("placeholder", codeMain.getPanelLang(307)); // 2~64位中英文字符
+        } else {
+            proNameLaya.setAttribute("placeholder", "");
+        }
     }
 
     /////-------------------------路径按钮--------开始
+    function changeValue() {
+        fullPathAreaEle.innerText = `${proFilePath.value}` + path.sep + `${proNameLaya.value}`;
+    }
     var layaNewProInput = getElement("div", "layaNewProInput");
     layerBackgroundrightPanel.appendChild(layaNewProInput);
+    // layaNewProInput.style.top = '220px';
     var input = getElement("span");
-    input.innerHTML = `${codeMain.getPanelLang(59)}`;
+    input.innerHTML = `${codeMain.getPanelLang(59)}`; // 名称
     layaNewProInput.appendChild(input);
     var proNameLaya = getElement("input");
     setFocuInput(proNameLaya)
-    proNameLaya.value = "myLaya";
+    proNameLaya.value = layaProObj.proName || "myLaya";
     layaNewProInput.appendChild(proNameLaya);
+    proNameLaya.onkeyup = changeValue;
     ////---------------------------
     var layaNewProInput = getElement("div", "layaNewProInput");
     layerBackgroundrightPanel.appendChild(layaNewProInput);
     var input = getElement("span");
-    input.innerHTML = `${codeMain.getPanelLang(123)}`;
+    input.innerHTML = `${codeMain.getPanelLang(123)}`; // 路径
     layaNewProInput.appendChild(input);
     var proFilePath = getElement("input");
+    proFilePath.style.width = "346px";
     setFocuInput(proFilePath);
     var proPathSelect = layaProObj.proPathSelect;
-    proFilePath.value = proPathSelect || remote.app.getPath("documents") + path.sep + "myLaya";
+    try {
+        proFilePath.value = proPathSelect || remote.app.getPath("documents") + path.sep + "myLaya";
+    } catch(e) {
+        console.error(e);
+        alert("获取系统路径出错，请手动设置项目路径!");
+    }
     layaNewProInput.appendChild(proFilePath);
-    layaNewProInput.style.top = "280px";
+    // layaNewProInput.style.top = "280px";
     var skipBtn = getElement("button");
+    skipBtn.style.left = "1px";
     skipBtn.innerText = codeMain.getPanelLang(22); //"浏览";
     layaNewProInput.appendChild(skipBtn);
-    skipBtn.onmousedown = function(e)
-        {
-            dialog.showOpenDialog(
-            {
-                properties: ["openDirectory", 'createDirectory']
-            }, function(p)
-            {
-                if (p)
-                {
-                    proFilePath.value = p[0];
-                }
-            });
-        }
+    skipBtn.onmousedown = function(e) {
+        dialog.showOpenDialog({
+            properties: ["openDirectory", 'createDirectory'],
+            defaultPath: proFilePath.value
+        }, function(p) {
+            if (p) {
+                proFilePath.value = p[0];
+                changeValue();
+            }
+        });
+    }
+    proFilePath.onkeyup = changeValue;
         ////---------------------------
     var layaNewProInputSelect = getElement("div", "layaNewProInput");
     layerBackgroundrightPanel.appendChild(layaNewProInputSelect);
@@ -208,17 +173,13 @@ function NewProLaya()
     option.text = `${codeMain.getPanelLang(6)}`//"JavaScript 项目(可以同时发布为HTML5,手游App)";
     proSelectType.add(option);
     proSelectType.selectedIndex = layaProObj.proTypeSelect;
-    layaNewProInputSelect.style.top = "340px";
-    layaNewProInputSelect.onchange = function()
-    {
-        console.log("kaishi")
-    }
+    // layaNewProInputSelect.style.top = "340px";
     //input.style.position ="ab"
     ////---------------------------;
     ////////-----------------------------引擎版本
     var engineTypePanel = getElement("div", "layaNewProInput");
     layerBackgroundrightPanel.appendChild(engineTypePanel);
-    engineTypePanel.style.top = "400px";
+    // engineTypePanel.style.top = "460px";
     var input = getElement("span");
     input.innerHTML =`${codeMain.getPanelLang(7)}`// "引擎:&nbsp";
     engineTypePanel.appendChild(input);
@@ -238,138 +199,257 @@ function NewProLaya()
             engineTypeVersion.add(option);
         }
     }
+
+
+    /////-------------------------------增加微信小游戏支持/as项目增加fb、fd
+    var layaWeGameEle = getElement("div", "layaNewProInput");
+    layerBackgroundrightPanel.appendChild(layaWeGameEle);
+    layaWeGameEle.style.height = "30px";
+    layaWeGameEle.innerHTML = `
+        <input type="checkbox" id="layaWeGame" ${layaProObj.isAddWeGame ? "checked" : ""}/>
+        <label for="layaWeGame" style="cursor: pointer;" title="${codeMain.getPanelLang(463)}">${codeMain.getPanelLang(306)}</label>
+        <div style="display: inline-block; margin-left: -125px;">
+            <input type="checkbox" id="layaAddASFile" ${layaProObj.isAddASFile ? "checked" : ""}/>
+            <label for="layaAddASFile" style="cursor: pointer;">${codeMain.getPanelLang(305)}</label>
+        </div>
+    `;
+
+    changeProgramLang();
+    layaNewProInputSelect.onchange = function(e)
+    {
+        changeProgramLang();
+    }
+    function changeProgramLang() {
+        let selectedIndex = proSelectType.selectedIndex;
+        let layaAddASFileParentEle = document.getElementById("layaAddASFile").parentElement;
+        if (selectedIndex === 0) {
+            layaAddASFileParentEle.style.display = "inline-block";
+        } else {
+            layaAddASFileParentEle.style.display = "none";
+        }
+    }
+
     //engineTypeVersion.selectedIndex = layaProObj.engineType || 0;
+    /////-------------------------------项目完整路径
+    var fullPathPanel = getElement("div", "layaNewProInput");
+    layerBackgroundrightPanel.appendChild(fullPathPanel);
+    fullPathPanel.style = "height: 30px;";
+    fullPathPanel.innerHTML = `
+	    <span>${codeMain.getPanelLang(279)}</span>
+	    <span id="fullPathArea">${proFilePath.value + path.sep + proNameLaya.value}</span>
+    `;
+    var fullPathAreaEle = document.getElementById('fullPathArea');
     /////-------------------------------
     var layaNewProInputBtn = getElement("div", "layaNewProInput");
     layerBackgroundrightPanel.appendChild(layaNewProInputBtn);
-    layaNewProInputBtn.style.top = "488px";
+    // layaNewProInputBtn.style.top = "648px";
     var skipBtn = getElement("button", "createLayaBtn");
     skipBtn.innerText =`${codeMain.getPanelLang(8)}` //"创建";
     layaNewProInputBtn.appendChild(skipBtn);
     skipBtn.onmousedown = function(e)
-        {
-            if (!proNameLaya.value)
-            {
-                alert(`${codeMain.getPanelLang(9)}`)
-                return
-            }
-            if (fs.existsSync(proFilePath.value))
-            {
-                if (fs.readdirSync(proFilePath.value).length > 0)
-                {
-                    if (!confirm(`${codeMain.getPanelLang(10)}`))
-                    {
-                        return;
-                    }
-                }
-            }
-            var layaProObj = {
-                "proPathSelect": proFilePath.value,
-                "engineType": engineTypeVersion.selectedIndex,
-                "proTypeSelect": proSelectType.selectedIndex,
-                "layaProType": _layaProType
-            }
-            localStorage.setItem("layaProObj", JSON.stringify(layaProObj));
-            console.log("新建项目--------")
-                //localStorage.getItem("proPathSelect");
-            var configFile = {};
-            configFile.proName = proNameLaya.value + ".laya";
-            configFile.version = codeMain.layaIDEVersion + "";
-            var libsPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "libs" + path.sep + engineTypeVersion.selectedOptions[0].text;
-            if (proSelectType.selectedIndex == 0)
-            {
-                var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "as";
-                libsPath = path.join(libsPath, "as", "libs");
-                codeMain.copyDir(libsPath, path.join(proFilePath.value, "libs/laya"));
-                var xml = `<?xml version="1.0" encoding="UTF-8"?>
-<projectDescription>
-    <name>${proNameLaya.value}</name>
-    <comment></comment>
-    <projects>
-    </projects>
-    <buildSpec>
-        <buildCommand>
-            <name>com.adobe.flexbuilder.project.flexbuilder</name>
-            <arguments>
-            </arguments>
-        </buildCommand>
-    </buildSpec>
-    <natures>
-        <nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
-    </natures>
-</projectDescription>`;
-                fs.writeFileSync(proFilePath.value + path.sep + ".project", xml);
-            }
-            else if (proSelectType.selectedIndex == 1)
-            {
-                var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "ts";
-                libsPath = path.join(libsPath, "ts", "libs");
-                codeMain.copyDir(libsPath, path.join(proFilePath.value, "bin/libs"));
-                var tdspath = path.join(path.dirname(libsPath), "LayaAir.d.ts");
-                codeMain.copyDir(tdspath, path.join(proFilePath.value, "libs"));
-
-            }
-            else
-            {
-                var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "js";
-                libsPath = path.join(libsPath, "js", "libs");
-                codeMain.copyDir(libsPath, path.join(proFilePath.value, "bin/libs"));
-                var tdspath = path.join(path.dirname(libsPath), "LayaAir.d.ts");
-                codeMain.copyDir(tdspath, path.join(proFilePath.value, "libs"));
-            }
-            ////空项目
-            if (_layaProType == 0)
-            {
-                layaZipPath = layaZipPath + path.sep + "empty";
-            }
-            ////ui+code项目
-            else if (_layaProType == 1)
-            {
-                layaZipPath = layaZipPath + path.sep + "uicode";
-            }
-            else if (_layaProType == 2)
-            {
-                layaZipPath = layaZipPath + path.sep + "3ddemo";
-            }
-            else if (_layaProType == 4)
-            {
-                layaZipPath = layaZipPath + path.sep + "wxminigame";
-            }
-            else if (_layaProType == 5)
-            {
-                layaZipPath = layaZipPath + path.sep + "wx3ddemo";
-            }
-            else
-            {
-                layaZipPath = layaZipPath + path.sep + "facebook";
-            }
-            var obj = {};
-            obj.proName = proNameLaya.value;
-            obj.engineType = layaProObj.engineType;
-            //layaideconfig.mode = "0";
-            obj.proType = proSelectType.selectedIndex;
-            obj.layaProType = _layaProType;
-            fs.writeFileSync(proFilePath.value + path.sep + proNameLaya.value + ".laya", JSON.stringify(obj));
-            // document.body.removeChild(layaLayerPop);
-            codeMain.removePopLayer(layaLayerPop);
-            codeMain.createNewPro(proFilePath.value, layaZipPath, libsPath, obj);
-        }
-        /////-------------------关闭按钮------------
-    var closeBtn = getElement("li", "closeBtn");
-    layerBackground.appendChild(closeBtn);
-    var closeTile = getElement("span", "");
-    closeTile.innerHTML = "×";
-    closeTile.style.fontSize = "24px"
-    closeBtn.appendChild(closeTile);
-    closeBtn.onmousedown = function(e)
     {
-        // layaLayerPop.parentNode.removeChild(layaLayerPop);
-        codeMain.removePopLayer(layaLayerPop);
-        if (!codeMain.workspacePath)
+        // 必填项判断
+        if (!proNameLaya.value)
         {
-            InitPage();
+            alert(`${codeMain.getPanelLang(9)}`)
+            return
         }
+        if (_layaProType === 8) { // layacloud 项目，对项目名进行判断
+            let proName = proNameLaya.value;
+            if (proName.length > 64 || proName.length < 2) {
+                alert(codeMain.getPanelLang(309)); // 项目名称为2~64位中英文字符
+                return;
+            }
+        }
+        const proFilePathValue = proFilePath.value + path.sep + proNameLaya.value;
+        if (fs.existsSync(proFilePathValue))
+        {
+            if (fs.readdirSync(proFilePathValue).length > 0)
+            {
+                alert(`${codeMain.getPanelLang(299)}`);
+                return;
+                // if (!confirm(`${codeMain.getPanelLang(10)}`))
+                // {
+                //     return;
+                // }
+            }
+        }
+        // 路径中不能有中文或其他特殊符号
+        if (!proFilePathValue.match(/^[\w\s:\-/\\\.]+$/)) {
+            alert(codeMain.getPanelLang(434)); // 项目路径中不要包含中文和其他特殊符号
+            return;
+        }
+        // 有些项目需要登录
+        let needLoginList = [8]; // layacloud
+        let isNeedLogin = needLoginList.indexOf(_layaProType) !== -1;
+        if (isNeedLogin && !codeMain.layaPageIns.isLogin()) {
+            let params = {
+                show: true,
+            };
+            codeMain.layaPageIns.createLayaLoginHTML(params);
+            return;
+        }
+        var layaProObj = {
+            "proName": proNameLaya.value,
+            "proPathSelect": proFilePath.value,
+            "engineType": engineTypeVersion.selectedIndex,
+            "proTypeSelect": proSelectType.selectedIndex,
+            "layaProType": _layaProType,
+            "isAddASFile": document.getElementById("layaAddASFile").checked,
+            "isAddWeGame": document.getElementById("layaWeGame").checked
+        }
+        localStorage.setItem("layaProObj", JSON.stringify(layaProObj));
+        console.log("新建项目--------")
+            //localStorage.getItem("proPathSelect");
+        var configFile = {};
+        configFile.proName = proNameLaya.value + ".laya";
+        configFile.version = codeMain.layaIDEVersion + "";
+        // end. 必填项判断
+
+        // 是否需要拷贝引擎库
+        // 这一步需要创建项目目录
+        var libsPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "libs" + path.sep + engineTypeVersion.selectedOptions[0].text;
+        let isNeedCopyLib = true;
+        let needNotList = [6, 10];
+        if (needNotList.indexOf(_layaProType) !== -1) { // 插件项目，不需要拷贝引擎库
+            isNeedCopyLib = false;
+        }
+
+        let workspaceLibCopyRootDir = proFilePathValue;
+        if (_layaProType === 8) {
+            workspaceLibCopyRootDir = codeMain.path.join(workspaceLibCopyRootDir, "client");
+        }
+        if (isNeedCopyLib && proSelectType.selectedIndex == 0) // as 项目
+        {
+            var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "as";
+            libsPath = path.join(libsPath, "as", "libs");
+            codeMain.copyDir(libsPath, path.join(workspaceLibCopyRootDir, "libs/laya"));
+            var jslibsPath = path.join(path.dirname(libsPath), "jslibs");
+            if (fs.existsSync(jslibsPath)) {
+                codeMain.copyDir(jslibsPath, path.join(workspaceLibCopyRootDir, "bin/libs"));
+            }
+        }
+        else if (isNeedCopyLib && proSelectType.selectedIndex == 1) // ts 项目
+        {
+            var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "ts";
+            libsPath = path.join(libsPath, "ts", "libs");
+            codeMain.copyDir(libsPath, path.join(workspaceLibCopyRootDir, "bin/libs"));
+            var tdspath = path.join(path.dirname(libsPath), "ts");
+            if (!fs.existsSync(tdspath)) {
+                tdspath = path.join(path.dirname(libsPath), "LayaAir.d.ts");
+            }
+            codeMain.copyDir(tdspath, path.join(workspaceLibCopyRootDir, "libs"));
+
+        }
+        else if (isNeedCopyLib) // js 项目
+        {
+            var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "js";
+            libsPath = path.join(libsPath, "js", "libs");
+            codeMain.copyDir(libsPath, path.join(workspaceLibCopyRootDir, "bin/libs"));
+            var tdspath = path.join(path.dirname(libsPath), "ts");
+            if (!fs.existsSync(tdspath)) {
+                tdspath = path.join(path.dirname(libsPath), "LayaAir.d.ts");
+            }
+            codeMain.copyDir(tdspath, path.join(workspaceLibCopyRootDir, "libs"));
+        }
+
+        if (!isNeedCopyLib) {
+            var languageFloder = proSelectType.selectedIndex == 0 ? "as" : (proSelectType.selectedIndex == 1 ? "ts" : "js");
+            var layaZipPath = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + languageFloder;
+
+            // 新建目录
+            codeMain.mkdirsSync(proFilePathValue);
+        }
+        // end. 拷贝引擎库
+
+        // 判断是否需要新增文件
+        let isAddASFile = document.getElementById("layaAddASFile").checked;
+        if (proSelectType.selectedIndex === 0 && isAddASFile) { // FB/FD文件判断
+            let asProjectDir = path.dirname(__dirname) + path.sep + "laya" + path.sep + "code" + path.sep + "other" + path.sep + "asProject";
+            codeMain.copyDir(asProjectDir + path.sep + ".actionScriptProperties", path.join(workspaceLibCopyRootDir));
+            codeMain.copyDir(asProjectDir + path.sep + "LayaSample.as3proj", path.join(workspaceLibCopyRootDir));
+            var xml = `<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+<name>${proNameLaya.value}</name>
+<comment></comment>
+<projects>
+</projects>
+<buildSpec>
+    <buildCommand>
+        <name>com.adobe.flexbuilder.project.flexbuilder</name>
+        <arguments>
+        </arguments>
+    </buildCommand>
+</buildSpec>
+<natures>
+    <nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
+</natures>
+</projectDescription>`;
+            fs.writeFileSync(workspaceLibCopyRootDir + path.sep + ".project", xml);
+        }
+        let isAddWeGame =  document.getElementById("layaWeGame").checked;
+        if (isAddWeGame) { // 微信\百度小游戏支持判断
+            let wxDir = path.join(__dirname, "../", "../", "../", "layarepublic", "LayaAirProjectPack", "lib", "data", "wxfiles");
+            let bdDir = path.join(__dirname, "../", "../", "../", "layarepublic", "LayaAirProjectPack", "lib", "data", "bdfiles");
+            codeMain.copyDir(wxDir, path.join(workspaceLibCopyRootDir, "bin"));
+            codeMain.copyDir(bdDir, path.join(workspaceLibCopyRootDir, "bin"));
+        }
+        // end. 判断是否需要新增文件
+
+        // 确定新建项目demo路径
+        let newProInfoObj;
+        for (let i = 0; i < codeMain.newProInfoList.length; i++) {
+            newProInfoObj = codeMain.newProInfoList[i];
+            if (newProInfoObj.layaProType === _layaProType) {
+                layaZipPath = layaZipPath + path.sep + newProInfoObj.demoFolder;
+                break;
+            }
+        }
+
+        // 写入.laya文件
+        var obj = {};
+        obj.proName = proNameLaya.value;
+        obj.engineType = layaProObj.engineType;
+        //layaideconfig.mode = "0";
+        obj.proType = proSelectType.selectedIndex;
+        obj.layaProType = _layaProType;
+        obj.version = "2.0.0";
+        if (obj.layaProType === 6 && obj.proType === 1) { // plugin项目，ts语言，设置为1.0.0
+            obj.version = "1.0.0";
+        }
+        fs.writeFileSync(proFilePathValue + path.sep + proNameLaya.value + ".laya", JSON.stringify(obj));
+        // end. 写入.laya文件
+
+        // document.body.removeChild(layaLayerPop);
+        if (_layaProType === 8) { // layacloud项目
+            let layaCloudInfo = {
+                proFilePath: proFilePathValue,
+                proName: proNameLaya.value,
+                proEngin: proSelectType.selectedIndex,
+                layaLayerPop: layaLayerPop,
+            };
+            let layaCloudParams = {
+                notCreate: true
+            };
+            codeMain.createNewPro(workspaceLibCopyRootDir, layaZipPath, libsPath, obj, layaCloudParams);
+            layaLayerPop.style.display = "none";
+            layaCloudCreate(layaCloudInfo, function() {
+                codeMain.removePopLayer(layaLayerPop);
+                codeMain.sendDa("act", "newpro", "proName", obj.proName, "layaProType", obj.layaProType, "proType", obj.proType, "engineType", obj.engineType);
+                codeMain._codechannel.openWindow([proFilePathValue]);
+            });
+            return;
+        }
+        let params;
+        if (_layaProType === 6) { // 插件项目，只需要拷贝本身，不需要拷贝empty
+            params = {
+                notCopyEmpty: true,
+            };
+        }
+        codeMain.removePopLayer(layaLayerPop);
+        codeMain.createNewPro(workspaceLibCopyRootDir, layaZipPath, libsPath, obj, params);
     }
+        /////-------------------关闭按钮------------
     var _this = this;
     NewProLaya.prototype.destroyPanel = function(e)
     {
@@ -378,6 +458,1133 @@ function NewProLaya()
         _this = null;
         layaLayerPop = null;
         layaNewProPanelCtrol = null;
+    }
+}
+
+let 
+    blockchainEle,
+    asideEle,
+    mainEle,
+    mainContentEle,
+    okBtn,
+    closeBtn,
+    selectCSBtn,
+    neoTrialRunBtn;
+let Worker;
+let 
+    workspaceDir,
+    blockchainWorkspaceDir, // 区块链创建项目用
+    workspaceName,
+    workspaceLang,
+    blockTempDirName = 'blockchainTemplates',
+    isSignatureSuccessed = false;
+let 
+    isETHProject,
+    isNEOProject,
+    isHPBProject,
+    NEOCSFilePath,
+    avmPath;
+/**
+ * 区块链重新部署函数
+ * - 编译合约-校验签名-部署合约
+ * - 该函数渲染了重新部署面板
+ * - 定义了除"主按钮"事件以外其他事件的处理
+ * - "主按钮"点击事件调用 blockchainOKClick 函数
+ * - 1.0 / 2.0 common-tool-title处不同（2.0有title，可以移动）
+ * - 1.0 / 2.0 layaProType处不同，因为1.0发版出错导致，2.0不需要同步这里
+ */
+function blockchainDeploy(params, cb) {
+    isETHProject = window.proInfoObj && window.proInfoObj.layaProType === 7;
+    isNEOProject =  window.proInfoObj && window.proInfoObj.layaProType === 9;
+    isHPBProject =  window.proInfoObj && window.proInfoObj.layaProType === 11;
+    NEOCSFilePath = null;
+    if (!isETHProject && !isNEOProject && !isHPBProject) { // 因为菜单是动态注入的，一般而言不会执行该代码
+        alert(codeMain.getPanelLang(466)); // 请在区块链项目中使用部署功能!
+        return;
+    }
+    workspaceDir = params.path;
+    blockchainWorkspaceDir = path.join(workspaceDir, blockTempDirName);
+    workspaceName = params.name;
+    workspaceLang = params.lang;
+
+    //创建背景容器
+    var layaBlockchainPop = getElement("div", "layaBlockchain");
+    layaBlockchainPop.style.zIndex = 199999999
+    codeMain.addPopLayer(layaBlockchainPop);
+
+    layaBlockchainPop.innerHTML = `
+    <div class="layerBackground">
+        <div class="common-tool-title">
+            <div class="common-tool-icon-wrapper">
+                <img class="common-tool-icon" title="${codeMain.getPanelLang(300)}" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+            </div>
+            <div class="common-tool-title-content">${codeMain.getPanelLang(300)}</div>
+            <div class="common-tool-close"></div>
+        </div>
+        <div class="aside">
+            <div class="aside-item selected">${codeMain.getPanelLang(288)}</div>
+            <div class="aside-divide-line"></div>
+            <div class="aside-item">${codeMain.getPanelLang(289)}</div>
+            <div class="aside-divide-line"></div>
+            <div class="aside-item">${codeMain.getPanelLang(290)}</div>
+        </div>
+        <div class="main">
+            <div class="main-content"></div>
+            <div class="button-ok"></div>
+            <div class="button-select-cs">${codeMain.getPanelLang(302)}</div>
+            <div class="button-neo-trialRun">${codeMain.getPanelLang(303)}</div>
+        </div>
+    </div>
+    `;
+    let 
+        title = layaBlockchainPop.getElementsByClassName("common-tool-title")[0];
+    __Layadrag(layaBlockchainPop, title);
+    // 动态改变右侧核心内容
+    blockchainEle = document.getElementsByClassName("layaBlockchain")[0];
+    asideEle = blockchainEle.getElementsByClassName("aside")[0];
+    mainEle = blockchainEle.getElementsByClassName("main")[0];
+    mainContentEle = mainEle.getElementsByClassName("main-content")[0];
+    okBtn = mainEle.getElementsByClassName("button-ok")[0];
+    closeBtn = blockchainEle.getElementsByClassName("common-tool-close")[0];
+    selectCSBtn = blockchainEle.getElementsByClassName("button-select-cs")[0];
+    neoTrialRunBtn = blockchainEle.getElementsByClassName("button-neo-trialRun")[0]; // NEO 试运行
+    // 选择.cs文件
+    selectCSBtn.addEventListener("click", function() {
+        var dialogLaya = electron.remote.dialog;
+        let options = {
+            properties: ["openFile"],
+            defaultPath: workspaceDir,
+            filters: [{
+                name: 'All Files',
+                extensions: ['cs']
+            }]
+        };
+        dialogLaya.showOpenDialog(options, function(pathLaya) {
+            if (pathLaya) {
+                NEOCSFilePath = pathLaya[0];
+                okBtn.setAttribute("data-can-click", "true");
+            }
+        });
+    }, false);
+    // NEO试运行
+    neoTrialRunBtn.addEventListener("click", function() {
+        let errorEle = mainContentEle.getElementsByClassName("signature-error")[0];
+        errorEle.style.display = "none";
+        let 
+            avmFileInputEle = mainContentEle.getElementsByClassName("contract-file")[0],
+            contractNameEle = mainContentEle.getElementsByClassName("contract-name")[0],
+            contractVersionEle = mainContentEle.getElementsByClassName("contract-version")[0],
+            contractauthorEle = mainContentEle.getElementsByClassName("contract-author")[0],
+            contractEmailEle = mainContentEle.getElementsByClassName("contract-email")[0],
+            storageAreaEle = document.getElementById("storageArea"),
+            dynamicExec = document.getElementById("dynamicExec"),
+            receipt = document.getElementById("receipt"),
+            contractDesEle = mainContentEle.getElementsByClassName("contract-des")[0],
+            contractParamsEle = mainContentEle.getElementsByClassName("contract-params-type")[0],
+            contractReturnEle = mainContentEle.getElementsByClassName("contract-return-type")[0];
+        let params = {
+            filePath: avmFileInputEle.value,
+            description: contractDesEle.value,
+            email: contractEmailEle.value,
+            author: contractauthorEle.value,
+            version: contractVersionEle.value,
+            name: contractNameEle.value,
+            need_storage: storageAreaEle.checked,
+            need_nep4: dynamicExec.checked,
+            payable: receipt.checked,
+            return_type: contractReturnEle.value,
+            parameter__list: contractParamsEle.value,
+            mainnet: isMineNet, // 是否主网
+        };
+        Worker.invokeSc(params, (err, consume) => {
+            if (err) {
+                let errorContentEle = mainContentEle.getElementsByClassName("signature-error-content")[0];
+                errorContentEle.innerText = `${isMineNet ? "" : "(测试环境)"}试运行失败\n${err}`;
+                errorEle.style.display = "block";
+                return;
+            }
+            okBtn.setAttribute("data-can-click", "true");
+            mainContentEle.getElementsByClassName("consume-inner")[0].innerText = consume;
+        });
+    }, false);
+    closeBtn.addEventListener("click", function() {
+        codeMain.removePopLayer(layaBlockchainPop);
+    }, false);
+    
+    // 点击按钮
+    okBtn.setAttribute("data-index", "1");
+    okBtn.setAttribute("data-can-click", "false");
+    okBtn.innerText = codeMain.getPanelLang(288);
+    okBtn.addEventListener("click", (event) => {
+        blockchainOKClick(event, () => {
+            // 移除面板，执行回调
+            codeMain.removePopLayer(layaBlockchainPop);
+            cb instanceof Function && cb();
+        });
+    }, false);
+
+    // 切换显示panel
+    asideEle.addEventListener("click", function(e) {
+        let target = e.target;
+        if (target.className !== "aside-item") { // 不是未选中的item，不处理
+            return;
+        }
+        let text = target.innerText;
+        if (isNEOProject) {
+            avmPath = codeMain.path.join(blockchainWorkspaceDir, `${workspaceName}.avm`);
+            if (text === codeMain.getPanelLang(288)) { // 编译合约
+                showBlockPanel("compile");
+            } else if (text === codeMain.getPanelLang(289)) { // 校验签名
+                // 如果还没有编译过合约
+                if (!codeMain.fs.existsSync(avmPath)) {
+                    showBlockPanel("compile");
+                    return;
+                }
+                showBlockPanel("signature");
+            } else if (text === codeMain.getPanelLang(290)) { // 部署合约
+                // 如果还没有编译过合约
+                if (!codeMain.fs.existsSync(avmPath)) {
+                    showBlockPanel("compile");
+                    return;
+                }
+                if (!isSignatureSuccessed) {
+                    showBlockPanel("signature");
+                    return;
+                }
+                showBlockPanel("deploy");
+            }
+            return;
+        }
+        let 
+            buildDir = codeMain.path.join(blockchainWorkspaceDir, "build");
+        if (text === codeMain.getPanelLang(288)) { // 编译合约
+            showBlockPanel("compile");
+        } else if (text === codeMain.getPanelLang(289)) { // 校验签名
+            // 如果还没有编译过合约
+            if (!codeMain.fs.existsSync(buildDir)) {
+                showBlockPanel("compile");
+                return;
+            }
+            showBlockPanel("signature");
+        } else if (text === codeMain.getPanelLang(290)) { // 部署合约
+            // 如果还没有编译过合约
+            if (!codeMain.fs.existsSync(buildDir)) {
+                showBlockPanel("compile");
+                return;
+            }
+            if (!isSignatureSuccessed) {
+                showBlockPanel("signature");
+                return;
+            }
+            showBlockPanel("deploy");
+        }
+    }, false);
+
+    // 编译合约 - 初始化
+    // NEO 合约初始化
+    if (isNEOProject) {
+        setTimeout(() => {
+            Worker = getBlockWorker();
+        }, 10);
+        showBlockPanel("compile");
+        okBtn.setAttribute("data-can-click", "false");
+        return;
+    }
+    // ETH || HPB 合约初始化
+    if (isETHProject || isHPBProject) {
+        let 
+            isBlockInit = codeMain.fs.existsSync(blockchainWorkspaceDir);
+        if (isBlockInit) {
+            // 执行的时候加载
+            setTimeout(() => {
+                Worker = getBlockWorker();
+                okBtn.setAttribute("data-can-click", "true");
+            }, 10);
+            showBlockPanel("compile");
+            okBtn.setAttribute("data-can-click", "false");
+        } else {
+            setTimeout(() => {
+                // 执行的时候加载
+                Worker = getBlockWorker();
+                // 创建项目
+                Worker.init(workspaceName, blockchainWorkspaceDir, (err) => {
+                    mainContentEle.innerHTML = "";
+                    if (err) {
+                        alert(err.message || err);
+                        throw err;
+                    }
+                    showBlockPanel("compile");
+                });
+            }, 0);
+        }
+    }
+}
+
+/**
+ * 获取区块链Worker调用
+ */
+function getBlockWorker() {
+    if (!Worker) {
+        if (isETHProject) {
+            Worker = codeMain.require("../../../layarepublic/blockchain/ETHBlock/index");
+        } else if (isNEOProject) {
+            Worker = codeMain.require("../../../layarepublic/blockchain/NEOBlock/worker");
+        } else if (isHPBProject) {
+            Worker = codeMain.require("../../../layarepublic/blockchain/HPBBlock/index");
+        }
+    }
+    return Worker;
+}
+
+let 
+    ownerAddress,
+    ownerPrivateKey,
+    isMineNet;
+let 
+    contractsDir,
+    buildDir;
+/**
+ * 区块链主按钮点击事件
+ * - 根据index判断进行到了第几步，并执行响应操作
+ */
+function blockchainOKClick(event, cb) {
+    let index = okBtn.getAttribute("data-index");
+    let isBtnCanClick = okBtn.getAttribute("data-can-click") === 'true';
+    if (!isBtnCanClick) { // 不可点击状态
+        return;
+    }
+    // 编译合约
+    contractsDir = path.join(blockchainWorkspaceDir, "contracts");
+    buildDir = path.join(blockchainWorkspaceDir, "build");
+    if (index === "1") { // 编译合约 click
+        okBtn.setAttribute("data-can-click", "false");
+        let contractsInfo = mainContentEle.getElementsByClassName("main-content-info")[0];
+        let outputEle1 = getElement("div", "");
+        outputEle1.innerText = "合约编译中 ...";
+        contractsInfo.appendChild(outputEle1);
+        let startTime = Date.now();
+
+        if (isNEOProject) {
+            Worker.init(() => {
+                // 注册log回调
+                Worker.regist_websocket_callback('log_print', (msg) => {
+                    let outputEle2 = getElement("div", "");
+                    outputEle2.innerText = msg.data || msg;
+                    contractsInfo.appendChild(outputEle2);
+                });
+                // 注册编译成功回调
+                Worker.regist_websocket_callback('complie_done', (msg) => {
+                    let outputEle2 = getElement("div", "");
+                    outputEle2.innerText = msg.data || msg;
+                    contractsInfo.appendChild(outputEle2);
+                    outputEle2 = getElement("div", "");
+                    outputEle2.innerText = "开始下载编译结果avm...";
+                    contractsInfo.appendChild(outputEle2);
+                    if(msg.data.code == 0){
+                        // 下载编译结果avm
+                        let downAvmPath = codeMain.path.join(blockchainWorkspaceDir, `${workspaceName}.avm`);
+                        Worker.download_avmFile(msg.data.avm_url, downAvmPath,function(){
+                            let outputEle3 = getElement("div", "");
+                            outputEle3.innerText = "下载成功，编译流程完成";
+                            contractsInfo.appendChild(outputEle3);
+                            okBtn.setAttribute("data-index", "2");
+                            okBtn.setAttribute("data-can-click", "true");
+                            okBtn.innerText = codeMain.getPanelLang(291); // 下一步
+                            selectCSBtn.style = "";
+                        })
+                    }
+                });
+                // 编译合约
+                Worker.complier_contract(NEOCSFilePath);
+            });
+            return;
+        } else if (isETHProject || isHPBProject) {
+            // ETH || HPB 编译
+            //编译选项
+            var options = {
+                contracts_directory: contractsDir, // "contracts/"
+                contracts_build_directory: buildDir, // build/
+                all: true,
+                quiet: false,
+                strict: false,
+                optimizer: true
+            }
+            Worker.compile(options, (err) => {
+                if (err) {
+                    let outputEle2 = getElement("div", "");
+                    outputEle2.innerText = "合约编译出错: " + (err.message || err);
+                    contractsInfo.appendChild(outputEle2);
+                    alert(err.message || err);
+                    throw err;
+                }
+                
+                let outputEle2 = getElement("div", "");
+                outputEle2.innerText = "合约编译完成";
+                let outputEle3 = getElement("div", "");
+                let useTime = Date.now() - startTime;
+                outputEle3.innerText = `用时${useTime}ms`;
+                contractsInfo.appendChild(outputEle2);
+                contractsInfo.appendChild(outputEle3);
+
+                okBtn.setAttribute("data-index", "2");
+                okBtn.setAttribute("data-can-click", "true");
+                okBtn.innerText = codeMain.getPanelLang(291); // 下一步
+            });
+            return;
+        }
+    }
+    if (index === "2") { // 下一步 click
+        showBlockPanel("signature");
+        return;
+    }
+    // 校验签名
+    if (index === "3") { // 校验签名 click
+        let ownerAddressEle =  mainContentEle.getElementsByClassName("owner-address")[0];
+        let ownerPrivateKeyEle = mainContentEle.getElementsByClassName("owner-private-key")[0];
+        let minenetEle = mainContentEle.getElementsByClassName("is-testrpc")[0];
+        let saveBlockInfoEle = mainContentEle.getElementsByClassName("is-save")[0];
+        ownerAddress = ownerAddressEle.value;
+        ownerPrivateKey = ownerPrivateKeyEle.value;
+        // 是否使用主网
+        isMineNet = !(minenetEle.checked);
+        // 是否保存到文件中
+        isSaveBlockInfo = saveBlockInfoEle.checked;
+        let errorEle = mainContentEle.getElementsByClassName("signature-error")[0];
+        let errorContentEle =  mainContentEle.getElementsByClassName("signature-error-content")[0];
+        if (isNEOProject) {
+            if (!ownerAddress || !ownerPrivateKey) {
+                errorContentEle.innerHTML = "地址、WIF均不可为空";
+                errorEle.style.display = 'block';
+                return;
+            }
+            // 校验签名
+            var addr;
+            try {
+                addr = NEOWorker.Wif2Addr(ownerPrivateKey);
+            } catch(err) {
+                errorContentEle.innerHTML = `请确认地址或WIF填写正确<br />${err.msg || err}`;
+                errorEle.style.display = 'block';
+                throw err;
+            }
+            if (addr.toLowerCase() !== ownerAddress.toLowerCase()) {
+                errorContentEle.innerHTML = `请确认地址或私钥填写正确`;
+                errorEle.style.display = 'block';
+                return;
+            }
+        } else if (isETHProject || isHPBProject) {
+            if (!ownerAddress || !ownerPrivateKey) {
+                errorContentEle.innerHTML = "地址、私钥均不可为空";
+                errorEle.style.display = 'block';
+                return;
+            }
+            // 验证签名
+            var 
+                publicKey,
+                addr,
+                pubkey;
+            try {
+                publicKey = EthUtil.privateToPublic(new Buffer(ownerPrivateKey, 'hex'));
+                addr ="0x"+ EthUtil.publicToAddress(publicKey).toString('hex');
+                addr = addr.toLowerCase();
+                pubkey = ownerAddress.toLowerCase();
+            } catch (err) {
+                errorContentEle.innerHTML = `请确认地址或私钥填写正确<br />${err.msg || err}`;
+                errorEle.style.display = 'block';
+                throw err;
+            }
+            if(addr != pubkey){
+                errorContentEle.innerHTML = `请确认地址或私钥填写正确`;
+                errorEle.style.display = 'block';
+                return;
+            }
+        } else { // 理论上不会走到
+            return;
+        }
+        
+        isSignatureSuccessed = true;
+        if (isSaveBlockInfo) {// 保存区块链信息
+            try {
+                let savePath = codeMain.path.join(blockchainWorkspaceDir, "laya_blockchain.layainfo");
+                let saveInfoObj = {
+                    ownerAddress: ownerAddress,
+                    ownerPrivateKey: ownerPrivateKey,
+                    isMineNet: isMineNet
+                };
+                codeMain.fs.writeFileSync(savePath, JSON.stringify(saveInfoObj));
+            } catch(e) {
+            }
+        } else { // 如果之前保存过，删掉
+            try{
+                let savePath = codeMain.path.join(blockchainWorkspaceDir, "laya_blockchain.layainfo");
+                codeMain.fs.unlinkSync(savePath);
+            } catch (e) {
+            }
+        }
+        ownerAddressEle.setAttribute("disabled", "disabled");
+        ownerPrivateKeyEle.setAttribute("disabled", "disabled");
+        minenetEle.setAttribute("disabled", "disabled");
+        saveBlockInfoEle.setAttribute("disabled", "disabled");
+        okBtn.setAttribute("data-index", "4");
+        okBtn.setAttribute("data-can-click", "true");
+        okBtn.innerText = codeMain.getPanelLang(291); // 下一步
+        return;
+    }
+    if (index === "4") { // 下一步 click
+        showBlockPanel("deploy");
+        return;
+    }
+    // 部署合约
+    if (index === "5") { // 部署合约 click
+        let errorContentEle = mainContentEle.getElementsByClassName("signature-error-content")[0];
+        let errorCircleEle = mainContentEle.getElementsByClassName("circle")[0];
+        let addressEle = mainContentEle.getElementsByClassName("address")[0];
+        let errorEle = mainContentEle.getElementsByClassName("signature-error")[0];
+        if (isNEOProject) {
+            Worker.pubSc((err, re) => {
+                if (err) {
+                    errorContentEle.innerText = `${isMineNet ? "" : "(测试环境)"}部署合约失败\n${err}`;
+                    errorEle.style.display = "block";
+                    return;
+                }
+
+                if (!Array.isArray(re) || !re[0].txid) {
+                    errorContentEle.innerText = `${isMineNet ? "" : "(测试环境)"}部署合约失败`;
+                    errorEle.style.display = "block";
+                    return;
+                }
+                let txid = re[0].txid;
+                codeMain.electron.clipboard.writeText(txid);
+                addressEle.getElementsByTagName("input")[0].value = txid;
+                addressEle.style.display = "block";
+                errorContentEle.innerText = `${isMineNet ? "" : "(测试环境)"}合约已经部署完成，合约地址已经在您的剪切板`;
+                errorCircleEle.style.backgroundColor = "#3df400";
+                errorEle.style.display = "block";
+
+                neoTrialRunBtn.style = "";
+
+                // 打开区块链项目
+                closeBtn.style.display = "none";
+                okBtn.setAttribute("data-index", "6");
+                okBtn.setAttribute("data-can-click", "true");
+                okBtn.innerText = codeMain.getPanelLang(297); // 完成
+            });
+            return;
+        } else if (isETHProject || isHPBProject) {
+            let gaspriceEle = mainContentEle.getElementsByClassName("gasprice")[0];
+            let gasprice = Number(gaspriceEle.value);
+            if (!gasprice || gasprice <= 0) {
+                alert("请输入合法的gas值");
+                return;
+            }
+            okBtn.setAttribute("data-can-click", "false");
+            let contractsValueEle = mainContentEle.getElementsByClassName("contracts-option")[0];
+            let contractValue = contractsValueEle.value;
+            var options =  {
+                mainnet: isMineNet, // 是否主网
+                gasprice: gasprice,   // gwei
+                contracts_build_directory: buildDir,  // 合约build 目录
+                contract_name: contractValue               // 合约名称
+            }
+            console.log("部署合约: ", ownerAddress, ownerPrivateKey, options);
+            setTimeout(() => {
+                Worker.deploy(ownerAddress, ownerPrivateKey, options, (err, info) => {
+                    if (err) {
+                        errorContentEle.innerText = `部署合约失败\n${err}`;
+                        errorEle.style.display = "block";
+                        return;
+                    }
+                    if (isETHProject) {
+                        let url = '';
+                        if (!isMineNet) { // 测试
+                            url = `https://rinkeby.etherscan.io/tx/${info}`;
+                        } else { // 正式
+                            url = `https://etherscan.io/tx/${info}`;
+                        }
+                        codeMain.electron.clipboard.writeText(url);
+                        addressEle.getElementsByTagName("input")[0].value = url;
+                        addressEle.style.display = "block";
+                        errorContentEle.innerText = `合约已经部署完成，合约地址已经在您的剪切板`;
+                        errorCircleEle.style.backgroundColor = "#3df400";
+                        errorEle.style.display = "block";
+
+                        let openSourceEle = document.getElementById("openSource");
+                        if (openSourceEle.checked) { // 开源代码
+                            // json, contracts_dir, mainnet, optimized, callback
+                            let jsonFilePath = codeMain.path.join(buildDir, `${contractValue}.json`);
+                            let contracts_dir = codeMain.path.join(blockchainWorkspaceDir, "contracts");
+                            Worker.verifyContract(jsonFilePath, contracts_dir, isMineNet, true, (err, info) => {
+                                if (err) {
+                                    errorContentEle.innerText = errorContentEle.innerText + `\n开源代码失败\n${err}`;
+                                } else {
+                                    errorContentEle.innerText = errorContentEle.innerText + `\n开源代码成功，请复制返回值后继续操作`;
+                                }
+                                // 展示开源返回代码
+                                let openSourceInputWrapperEle = document.getElementById("openSourceInputWrapper");
+                                let openSourceInputEle = openSourceInputWrapperEle.getElementsByClassName("deploy-open-source")[0];
+                                openSourceInputWrapperEle.style.display = "flex";
+                                openSourceInputEle.value = JSON.stringify(info);
+                                
+                                closeBtn.style.display = "none";
+                                okBtn.setAttribute("data-index", "6");
+                                okBtn.setAttribute("data-can-click", "true");
+                                okBtn.innerText = codeMain.getPanelLang(297); // 完成
+                            });
+                            okBtn.innerText = codeMain.getPanelLang(304); // 完成
+                            return;
+                        }
+                    } else if (isHPBProject) { // 没有地址
+                        addressEle.getElementsByTagName("input")[0].value = info;
+                        addressEle.style.display = "block";
+                        errorContentEle.innerText = `合约已经部署完成`;
+                        errorCircleEle.style.backgroundColor = "#3df400";
+                        errorEle.style.display = "block";
+                    }
+
+                    // 打开区块链项目
+                    closeBtn.style.display = "none";
+                    okBtn.setAttribute("data-index", "6");
+                    okBtn.setAttribute("data-can-click", "true");
+                    okBtn.innerText = codeMain.getPanelLang(297); // 完成
+                });
+            }, 0);
+            return;
+        }
+    }
+    // 打开区块链项目
+    if (index === "6") { // 打开区块链项目 | 完成(重新编译情况下)
+        cb instanceof Function && cb();
+        return;
+    }
+}
+
+/**
+ * 显示区块链部署面板内容
+ * - 根据传过来的参数确定显示面板的内容
+ */
+function showBlockPanel(panelName) {
+    selectCSBtn.style = "";
+    neoTrialRunBtn.style = "";
+    if (panelName === "compile") { // 编译合约
+        okBtn.setAttribute("data-index", "1");
+        okBtn.setAttribute("data-can-click", "false");
+        okBtn.innerText = codeMain.getPanelLang(288); // 编译合约
+
+        let oldAsideItemEle = asideEle.getElementsByClassName("selected")[0];
+        oldAsideItemEle.className = 'aside-item';
+        asideEle.getElementsByClassName("aside-item")[0].className = 'aside-item selected';
+
+        mainContentEle.innerHTML = `
+        <div class="contracts-content">
+            <div class="main-content-name">${workspaceName}</div>
+            <div class="main-content-info"></div>
+        </div>
+        `;
+        okBtn.setAttribute("data-can-click", "true");
+        if (isNEOProject) {
+            selectCSBtn.style.display = "flex";
+        }
+        if (isNEOProject && !NEOCSFilePath) {
+            okBtn.setAttribute("data-can-click", "false");
+        }
+        return;
+    }
+    if (panelName === "signature") { // 公钥/私钥 | 
+        okBtn.setAttribute("data-index", "3");
+        okBtn.setAttribute("data-can-click", "false");
+        okBtn.innerText = codeMain.getPanelLang(289); // 校验签名
+
+        let oldAsideItemEle = asideEle.getElementsByClassName("selected")[0];
+        oldAsideItemEle.className = 'aside-item';
+        asideEle.getElementsByClassName("aside-item")[1].className = 'aside-item selected';
+
+        mainContentEle.innerHTML = `
+        <div class="signature-content">
+            <div class="signature-error">
+                <div class="circle"></div>
+                <div class="signature-error-content"></div>
+            </div>
+            <div style="margin-bottom: 30px;"><label>合约所有者地址</label><input type="text" class="owner-address"/></div>
+            <div><label>${isNEOProject ? "WIF" : "私钥"}</label><input type="text" class="owner-private-key"/></div>
+            <div class="testrpc-check"><input type="checkbox" ${isHPBProject ? "checked='checked' disabled='disabled'" : ""} class="is-testrpc" id="usetestrpc"/><label for="usetestrpc">使用测试网络(testrpc)</label></div>
+            <div class="save-check"><input type="checkbox" class="is-save" id="saveblockinfo"/><label for="saveblockinfo">保存地址及私钥（保存在项目文件中）</label></div>
+        </div>
+        `;
+
+        let ownerAddressEle =  mainContentEle.getElementsByClassName("owner-address")[0];
+        let ownerPrivateKeyEle = mainContentEle.getElementsByClassName("owner-private-key")[0];
+        let minenetEle = mainContentEle.getElementsByClassName("is-testrpc")[0];
+        let saveBlockInfoEle = mainContentEle.getElementsByClassName("is-save")[0];
+        let signatureContentEle = mainContentEle.getElementsByClassName("signature-content")[0];
+        let errorEle = mainContentEle.getElementsByClassName("signature-error")[0];
+
+        signatureContentEle.addEventListener("focusin", function() {
+            errorEle.style.display = "none";
+        }, false);
+        // 读取保存在项目文件中的信息
+        try {
+            let savePath = codeMain.path.join(blockchainWorkspaceDir, "laya_blockchain.layainfo");
+            let infoStr = codeMain.fs.readFileSync(savePath);
+            let infoObj = JSON.parse(infoStr);
+            ownerAddressEle.value = infoObj.ownerAddress;
+            ownerPrivateKeyEle.value = infoObj.ownerPrivateKey;
+            minenetEle.checked = !infoObj.isMineNet;
+            saveBlockInfoEle.checked = true;
+        } catch(e) {
+        }
+        okBtn.setAttribute("data-can-click", "true");
+        return;
+    }
+    if (panelName === "deploy") { // 部署
+        okBtn.setAttribute("data-index", "5");
+        okBtn.setAttribute("data-can-click", "false");
+        okBtn.innerText = codeMain.getPanelLang(290); // 部署合约
+
+        let oldAsideItemEle = asideEle.getElementsByClassName("selected")[0];
+        oldAsideItemEle.className = 'aside-item';
+        asideEle.getElementsByClassName("aside-item")[2].className = 'aside-item selected';
+
+        if (isNEOProject) {
+            mainContentEle.innerHTML = `
+            <div class="deployment-content neo-content">
+                <div class="signature-error">
+                    <div class="circle"></div>
+                    <div class="signature-error-content"></div>
+                </div>
+                <div class="deployment-item">
+                    <label style="width: 100px;">合约文件选择</label>
+                    <input class="contract-file" readonly="readonly" value="${avmPath}"/>
+                    <div class="select-avm-btn">浏览</div>
+                </div>
+                <div class="deployment-item">
+                    <label style="width: 100px;">合约名称</label>
+                    <input class="contract-name" type="text" style="width: 100px;" value="测试合约"/>
+                    <label style="width: 70px; text-align: center;">版本号</label>
+                    <input class="contract-version" type="text" style="width: 50px;" value="1.0"/>
+                    <label style="width: 50px; text-align: center;">作者</label>
+                    <input class="contract-author" type="text" style="width: 50px;" value="nel"/>
+                    <label style="width: 50px; text-align: center;">Email</label>
+                    <input class="contract-email" type="text" style="width: 50px;" value="0"/>
+                </div>
+                <div class="deployment-item">
+                    <input type="checkbox" id="storageArea" style="width: auto; margin-right: 10px; outline: none;"/>
+                    <label for="storageArea" style="width: 150px;">是否需要存储区</label>
+                    <input type="checkbox" id="dynamicExec" style="width: auto; margin-right: 10px; outline: none;"/>
+                    <label for="dynamicExec" style="width: 150px;">是否支持动态调用</label>
+                    <input type="checkbox" id="receipt" style="width: auto; margin-right: 10px; outline: none;"/>
+                    <label for="receipt" style="width: 150px;">是否支持合约收款</label>
+                </div>
+                <div class="deployment-item">
+                    <label style="width: 50px;">描述</label>
+                    <input class="contract-des" type="text" style="width: 100px;" value="0"/>
+                    <label style="width: 80px; text-align: center;">参数类型</label>
+                    <input class="contract-params-type" type="text" style="width: 100px;" value="0710"/>
+                    <label style="width: 80px; text-align: center;">返回类型</label>
+                    <input class="contract-return-type" type="text" style="width: 100px;" value="05"/>
+                </div>
+                <div style="margin-bottom: 110px; position: absolute; bottom: 0;">部署花费 <span class="consume-inner" style="color: #267a4a;">--</span></div>
+                <div class="deployment-item address" style="display: none;">
+                    <label>txid</label>
+                    <input class="deploy-address" readonly/>
+                </div>
+            </div>
+            `;
+            window.mainContentEle = mainContentEle;
+            let 
+                avmFileInputEle = mainContentEle.getElementsByClassName("contract-file")[0],
+                selectAvmBtn = mainContentEle.getElementsByClassName("select-avm-btn")[0],
+                contractNameEle = mainContentEle.getElementsByClassName("contract-name")[0],
+                contractVersionEle = mainContentEle.getElementsByClassName("contract-version")[0],
+                contractauthorEle = mainContentEle.getElementsByClassName("contract-author")[0],
+                contractEmailEle = mainContentEle.getElementsByClassName("contract-email")[0],
+                storageAreaEle = document.getElementById("storageArea"),
+                dynamicExec = document.getElementById("dynamicExec"),
+                receipt = document.getElementById("receipt"),
+                contractDesEle = mainContentEle.getElementsByClassName("contract-des")[0],
+                contractParamsEle = mainContentEle.getElementsByClassName("contract-params-type")[0],
+                contractReturnEle = mainContentEle.getElementsByClassName("contract-return-type")[0];
+
+            // 合约类型选择
+            selectAvmBtn.addEventListener("click", function() {
+                var dialogLaya = electron.remote.dialog;
+                let options = {
+                    properties: ["openFile"],
+                    filters: [{
+                        name: 'All Files',
+                        extensions: ['avm']
+                    }]
+                };
+                dialogLaya.showOpenDialog(options, function(pathLaya) {
+                    if (pathLaya) {
+                        avmFileInputEle.value = pathLaya[0];
+                    }
+                });
+            }, false);
+            okBtn.setAttribute("data-can-click", "false");
+            neoTrialRunBtn.style.display = "flex";
+            return;
+        }
+        // 从文件夹中获取合约类型
+        let constractsFilesList = codeMain.fs.readdirSync(buildDir);
+        constractsFilesList = constractsFilesList.filter(function(item, index, list) {
+            return item.endsWith(".json");
+        });
+        constractsFilesList = constractsFilesList.map(function(item, index, list) {
+            return item.replace(".json", "");
+        });
+
+        let gasPrice = 10;
+        mainContentEle.innerHTML = `
+        <div class="deployment-content">
+            <div class="signature-error">
+                <div class="circle"></div>
+                <div class="signature-error-content"></div>
+            </div>
+            <div class="deployment-item">
+                <label>合约选择</label>
+                <select class="contracts-option">
+                    ${
+                        constractsFilesList.map(item => `
+                        <option value="${item}">${item}</option>
+                        `)
+                    }
+                </select>
+            </div>
+            <div class="deployment-item">
+                <label>合约拥有者</label>
+                <p>${ownerAddress}</p>
+            </div>
+            <div class="deployment-item">
+                <label>部署Gas</label>
+                <p class="gas-value">--</p>
+            </div>
+            <div class="deployment-item">
+                <label>Gas单价</label>
+                <input class="gasprice" value="${gasPrice}"/><p class="deployment-unit">Gwei</p>
+                <p class="deployment-des">此处填写越大，手续费越高，入块速度越快</p>
+            </div>
+            <div class="deployment-item">
+                <label>本次预计消耗</label>
+                <p class="deployment-eth">--</p>
+            </div>
+            <div class="deployment-item" style="${isHPBProject ? "display: none;" : ""}">
+                <input type="checkbox" id="openSource" style="width: auto; margin-right: 10px; outline: none;"/>
+                <label for="openSource" style="width: 300px;">是否在etherscan.io上发布(开源)代码</label>
+            </div>
+            <div class="deployment-item address" style="display: none;">
+                <label>合约地址</label>
+                <input class="deploy-address" readonly/>
+            </div>
+            <div class="deployment-item" id="openSourceInputWrapper" style="display: none; margin-top: 15px;">
+                <label style="width: 800px;">开源代码返回值(请复制后继续操作):</label>
+                <input class="deploy-open-source" style="margin-left: -600px; width: 800px; text-align: center; border: solid 1px #fff; background-color: transparent; margin-top: 25px;" readonly/>
+            </div>
+        </div>
+        `;
+        let gasValueEle = mainContentEle.getElementsByClassName("gas-value")[0];
+        let deploymentContent = mainContentEle.getElementsByClassName("deployment-content")[0];
+        let ETHValueEle = mainContentEle.getElementsByClassName("deployment-eth")[0];
+
+        let Gas;
+        setTimeout(function() {
+            let ETHValue;
+            try {
+                Gas = Worker.getGas(isMineNet, ownerAddress) * 10;
+                // 消耗的ETH值
+                // let ETH_GWEI = 9; // 18
+                // let ETHValue = (gasPrice * Gas / Math.pow(10, ETH_GWEI)).toFixed(ETH_GWEI);
+                ETHValue = Worker.getETH(isMineNet, gasPrice * Gas * Math.pow(10, 9));
+            } catch(err) {
+                let errorEle = mainContentEle.getElementsByClassName("signature-error")[0];
+                let errorContentEle = mainContentEle.getElementsByClassName("signature-error-content")[0];
+                errorContentEle.innerText = `初始化部署合约失败\n${err}`;
+                errorEle.style.display = "block";
+                throw err;
+            }
+            gasValueEle.innerText = Gas;
+            ETHValueEle.innerText = ETHValue + (isETHProject ? "ETH" : "HPB");
+            okBtn.setAttribute("data-can-click", "true");
+        }, false);
+
+        // gasPrice 单价变化，消耗的ETH值也会变化
+        let 
+            _gasPrice,
+            _ETHValue;
+        deploymentContent.addEventListener("keyup", function(e) {
+            _gasPrice = Number(e.target.value);
+            if (!_gasPrice || _gasPrice <= 0) { // 输入非数字或者小于零的数字
+                ETHValueEle.innerText = '--ETH';
+                return;
+            }
+            // _ETHValue = _gasPrice * Gas / Math.pow(10, ETH_GWEI);
+            _ETHValue = Worker.getETH(isMineNet, _gasPrice * Gas * Math.pow(10, 9));
+            ETHValueEle.innerText = _ETHValue + 'ETH';
+        }, false);
+        return;
+    }
+}
+
+/**
+ * 云项目
+ */
+let 
+    layaCloudEle,
+    errorInfoEle,
+    reLoginTimer,
+    layaCloudCreateInfo;
+function layaCloudCreate(infoObj, cb) {
+    workspaceDir = infoObj.proFilePath;
+    workspaceName = infoObj.proName;
+    workspaceLang = infoObj.proEngin;
+    var layaLayerPop = infoObj.layaLayerPop;
+    //创建背景容器
+    var layaCloudPopEle = getElement("div", "layacloud");
+    layaCloudPopEle.style.zIndex = 199999999;
+    codeMain.addPopLayer(layaCloudPopEle);
+
+    layaCloudPopEle.innerHTML = `
+    <div class="layerBackground">
+        <div class="common-tool-title">
+            <div class="common-tool-icon-wrapper">
+                <img class="common-tool-icon" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+            </div>
+            <div class="common-tool-title-content"></div>
+            <div class="common-tool-close"></div>
+        </div>
+        <div class="layarMainWrapper">
+            <div class="aside">
+                <div class="aside-item selected">${codeMain.getPanelLang(294)}</div>
+                <div class="aside-divide-line"></div>
+                <div class="aside-item">${codeMain.getPanelLang(295)}</div>
+                <div class="aside-divide-line"></div>
+                <div class="aside-item">${codeMain.getPanelLang(296)}</div>
+                <div class="aside-divide-line"></div>
+                <div class="aside-item">${codeMain.getPanelLang(297)}</div>
+            </div>
+            <div class="main">
+                <div class="error-wrapper">
+                    <div class="circle"></div>
+                    <div class="error-content"></div>
+                </div>
+                <div class="main-content">
+                    <div class="main-info"></div>
+                </div>
+                <div class="button-ok"></div>
+            </div>
+        </div>
+    </div>
+    `;
+    let titleEle = layaCloudPopEle.getElementsByClassName("common-tool-title")[0];
+    __Layadrag(layaCloudPopEle, titleEle);
+    // 动态改变右侧核心内容
+    layaCloudEle = document.getElementsByClassName("layacloud")[0];
+    asideEle = layaCloudEle.getElementsByClassName("aside")[0];
+    mainEle = layaCloudEle.getElementsByClassName("main")[0];
+    mainContentEle = mainEle.getElementsByClassName("main-content")[0];
+    mainInfo = mainContentEle.getElementsByClassName("main-info")[0];
+    okBtn = mainEle.getElementsByClassName("button-ok")[0];
+    closeBtn = layaCloudEle.getElementsByClassName("common-tool-close")[0];
+    
+    closeBtn.addEventListener("click", function() {
+        codeMain.removePopLayer(layaCloudPopEle);
+    }, false);
+    okBtn.setAttribute("data-can-click", "false");
+    okBtn.innerText = codeMain.getPanelLang(297);
+    okBtn.addEventListener("click", (event) => {
+        let isBtnCanClick = okBtn.getAttribute("data-can-click") === 'true';
+        if (!isBtnCanClick) { // 不可点击状态
+            return;
+        }
+        if (okBtn.innerText === codeMain.getPanelLang(308)) {
+            codeMain.removePopLayer(layaCloudPopEle);
+            layaLayerPop.parentElement.style.display = "block";
+            layaLayerPop.style.display = "block";
+            return;
+        }
+        codeMain.removePopLayer(layaCloudPopEle);
+        cb instanceof Function && cb();
+    }, false);
+
+    // 显示项目创建过程及错误信息
+    let 
+        infoEle,
+        className;
+    function showInfo(text, isError, index) {
+        if (text === "laya.divide.line") {
+            infoEle = getElement("p", "divide-line");
+            mainInfo.appendChild(infoEle);
+            return;
+        }
+        if (text === "laya.success.project.info") {
+            infoEle = getElement("p");
+            let appId = layaCloudCreateInfo.match(/^AppId: (.*)$/mi)[1];
+            let appKey = layaCloudCreateInfo.match(/^AppKey: (.*)$/mi)[1];
+            let name = layaCloudCreateInfo.match(/^项目名称: (.*)$/mi)[1];
+            let lang = layaCloudCreateInfo.match(/^编程语言: (.*)$/mi)[1];
+            infoEle.innerHTML = `
+            <table border="1" class="cloudtable">
+                <caption style="font-size: 17px;">项目信息</caption>
+                <tr>
+                    <td>appId</td>
+                    <td>${appId}</td>
+                </tr>
+                <tr>
+                    <td>appKey</td>
+                    <td>${appKey}</td>
+                </tr>
+                <tr>
+                    <td>项目名称</td>
+                    <td>${name}</td>
+                </tr>
+                <tr>
+                    <td>编程语言</td>
+                    <td>${lang}</td>
+                </tr>
+            </table>
+            `;
+            mainInfo.innerHTML = '';
+            mainInfo.appendChild(infoEle);
+            infoEle = getElement("p", "layacloud-success-info");
+            infoEle.innerText = `项目已成功创建，信息保存在 ${workspaceDir + codeMain.path.sep + "layacloud.json"} 中，请勿修改或移除此文件。`;
+            mainInfo.appendChild(infoEle);
+            mainInfo.style.backgroundColor = "transparent";
+            return;
+        }
+        className = isError ? "layacloud-error-info" : "layacloud-info";
+        infoEle = getElement("p", className);
+        infoEle.innerText = text;
+        mainInfo.appendChild(infoEle);
+        if (index) {
+            asideEle.getElementsByClassName("aside-item")[index - 1].className = 'aside-item';
+            asideEle.getElementsByClassName("aside-item")[index].className = 'aside-item selected';
+        }
+    }
+
+    // 处理项目创建过程中的错误
+    function handleError(data, info) {
+        const 
+            ERR_DEV_CENTER_LOGIN_FAIL = -9001,
+            ERR_USER_NOT_LOGIN = -9002,
+            ERR_SCRIPT_NEED_RELOAD = -9003;
+        if (!data || typeof data !== "object" || data.ret !== 0) {
+            let index = info.index;
+            let text;
+            switch(index) {
+                case 1:
+                    if (data.ret === ERR_SCRIPT_NEED_RELOAD) { // layacloud sdk更新了，reload
+                        codeMain.deleteLayaCloudRequireCache();
+                        info.layaCloudWorker = codeMain.require("../../../layarepublic/layaCloud/index");
+                        layaCloudFunc(info);
+                        return true;
+                    } else if (data.ret === ERR_DEV_CENTER_LOGIN_FAIL || data.ret === ERR_USER_NOT_LOGIN) {
+                        text = "创建layacloud出错了，请5s后重新登录:\n" + data.msg;
+                        reLoginTimer && clearTimeout(reLoginTimer);
+                        reLoginTimer = setTimeout(function() {
+                            codeMain.layaPageIns.logoutAndReLogin(); // 退出并重新登录
+                        }, 5000);
+                    } else {
+                        text = data.msg;
+                    }
+                    break;
+                // case 2:
+                //     text = "下载资源出错了:\n" + data.msg;
+                //     break;
+                // case 3:
+                //     text = "解压缩出错了:\n" + data.msg;
+                //     break;
+                default:
+                    text = data.msg;
+            }
+            showInfo(text, true);
+
+            okBtn.setAttribute("data-can-click", "true");
+            okBtn.innerText = codeMain.getPanelLang(308); // 上一步
+            return true;
+        }
+        return false;
+    }
+
+    // 调用layacloud创建接口
+    let layaCloudWorker = codeMain.require("../../../layarepublic/layaCloud/index");
+    let loginInfo = codeMain.layaPageIns.getLoginInfo();
+    let langStr = workspaceLang === 0 ? "as" : (workspaceLang === 1 ? "ts" : "js");
+    let 
+        text,
+        dataObj;
+    dataObj = {
+        layaCloudWorker: layaCloudWorker,
+        token: loginInfo && loginInfo.token,
+        name: workspaceName,
+        path: workspaceDir,
+        lang: langStr,
+        showInfo: showInfo,
+        handleError: handleError,
+        index: 0,
+        okBtn: okBtn
+    };
+    layaCloudFunc(dataObj);
+}
+
+function layaCloudFunc(info) {
+    let layaCloudWorker = info.layaCloudWorker;
+    let token = info.token;
+    let name = info.name;
+    let pathDir = info.path;
+    let lang = info.lang;
+    let showInfo = info.showInfo;
+    let handleError = info.handleError;
+    let index = info.index;
+    let okBtn = info.okBtn;
+    if (index === 0) {
+        text = "正在云端创建LayaCloud项目...";
+        showInfo(text, false);
+        info.index++;
+        layaCloudFunc(info);
+    } else if (index === 1) {
+        layaCloudWorker.createGame(token, name, lang, pathDir, function(data){
+            let isError = handleError(data, info);
+            if (isError) {
+                return;
+            }
+            layaCloudCreateInfo = data.msg;
+            console.log("创建项目成功后的返回值，需要保存: ", layaCloudCreateInfo);
+            text = data.msg;
+            showInfo(text, false, 1);
+            showInfo("laya.divide.line");
+            text = "正在从云端下载项目模板...";
+            showInfo(text, false);
+            info.index++;
+            layaCloudFunc(info);
+        });
+    } else if (index === 2) {
+        let cloudDownDir = codeMain.path.join(codeMain.remote.app.getPath('userData'), "cloud", "download") + codeMain.path.sep;
+        codeMain.mkdirsSync(cloudDownDir);
+        layaCloudWorker.downloadResource(cloudDownDir, function(data){
+            let isError = handleError(data, info);
+            if (isError) {
+                return;
+            }
+            text = data.msg;
+            showInfo(text, false, 2);
+            showInfo("laya.divide.line");
+            text = "开始解压缩项目模板资源包...";
+            showInfo(text, false, 2);
+            info.index++;
+            layaCloudFunc(info);
+        });
+    } else if (index === 3) {
+        layaCloudWorker.unzip(pathDir, function(data){
+            let isError = handleError(data, info);
+            if (isError) {
+                return;
+            }
+            text = data.msg;
+            showInfo(text, false, 3);
+            showInfo("laya.divide.line");
+            okBtn.setAttribute("data-can-click", "true");
+            // 显示项目信息
+            showInfo("laya.success.project.info");
+            // cb instanceof Function && cb(data, index);
+        })
     }
 }
 
@@ -487,7 +1694,6 @@ function InitPage()
 
 }
 
-//jscompressTool()
 function jscompressTool()
 {
     var popLayerWindowq = new popLayerWindow();
@@ -498,7 +1704,7 @@ function jscompressTool()
         popLayerWindowq.fileInput.value = jspathObj.inuputpath;
         popLayerWindowq.fileOutput.value = jspathObj.outputPath;
     }
-    popLayerWindowq.titleBackground.innerHTML = `${codeMain.getPanelLang(12)}`//"js压缩";
+    popLayerWindowq.titleBackground.getElementsByClassName("common-tool-title-content")[0].innerHTML = `${codeMain.getPanelLang(12)}`; //"js压缩";
     popLayerWindowq.fileInput.placeholder = `${codeMain.getPanelLang(13)}`//"拖入或者选择js文件...";
     popLayerWindowq.fileOutput.placeholder = `${codeMain.getPanelLang(14)}`//"选择min.js的输出路径...";
     var myCanvas = getElement("canvas");
@@ -549,6 +1755,7 @@ function jscompressTool()
             // console.log('fork return pid: ' + child.pid);
             child.on('message', function(msg)
             {
+                console.error(msg);
                 alert(codeMain.lang(codeMain.getPanelLang(170), msg.line, msg.message));
             });
             child.on('close', (code) => {
@@ -575,13 +1782,6 @@ function jscompressTool()
         }
 
     }
-    popLayerWindowq.closeBtn.onclick = function()
-    {
-        // codeMain.
-        console.log("============================")
-        // popLayerWindowq.popPanel.parentNode.removeChild(popLayerWindowq.popPanel);
-        codeMain.removePopLayer(popLayerWindowq.popPanel);
-    }
     popLayerWindowq.viewPanel.ondrop = function(e)
     {
             e.preventDefault();
@@ -594,41 +1794,33 @@ function jscompressTool()
             }
     }
         ////////////////////选择js文件的路径
-    popLayerWindowq.btnInput.onclick = function()
-    {
+    popLayerWindowq.btnInput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openFile", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: ['js']
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: popLayerWindowq.fileInput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
                 popLayerWindowq.fileInput.value = pathLaya[0];
                 popLayerWindowq.fileOutput.value = path.dirname(pathLaya[0])
             }
         })
     }
-    popLayerWindowq.btnOutput.onclick = function()
-    {
+    popLayerWindowq.btnOutput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openDirectory", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: ['js']
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: popLayerWindowq.fileOutput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
                 popLayerWindowq.fileOutput.value = pathLaya[0];
             }
         })
@@ -650,7 +1842,7 @@ function tpgConvert() {
         popLayerWindowq.fileInput.value = tpgpathObj.inuputpath;
         popLayerWindowq.fileOutput.value = tpgpathObj.outputPath;
     }
-    popLayerWindowq.titleBackground.innerHTML = `${codeMain.getPanelLang(272)}`; // TPG转换
+    popLayerWindowq.titleBackground.getElementsByClassName("common-tool-title-content")[0].innerHTML = `${codeMain.getPanelLang(272)}`; // TPG转换
     popLayerWindowq.fileInput.placeholder = `${codeMain.getPanelLang(273)}`; // 拖入或者选择图片文件
     popLayerWindowq.fileOutput.placeholder = `${codeMain.getPanelLang(274)}`; // 选择TPG的输出路径
     var myCanvas = getElement("canvas");
@@ -698,10 +1890,13 @@ function tpgConvert() {
             maxBuffer: 1024 * 1024 * 20,
             timeout: 30 * 1000,
         }, function(err, stdOut, stdErr) {
+            console.log('tpg re:', err, stdOut, stdErr);
             clearInterval(timeIDdelay);
             let tipStr = '';
             if (stdOut && stdOut.indexOf('STATUS_ENCODE_OK') !== -1) {
                 tipStr = codeMain.getPanelLang(21); // 执行完成
+            } else if (stdOut && stdOut.indexOf('STATUS_NETWORK_ERROR') !== -1) {
+                tipStr = codeMain.getPanelLang(280); // 网络错误
             } else {
                 tipStr = codeMain.getPanelLang(188); // 发生错误
             }
@@ -710,10 +1905,6 @@ function tpgConvert() {
             myCanvas.style.display = "none";
             popLayerWindowq.popPanelBackground.style.display = "block";
         })
-    }
-    // 关闭按钮
-    popLayerWindowq.closeBtn.onclick = function() { 
-        codeMain.removePopLayer(popLayerWindowq.popPanel);
     }
     // 整个面板的拖拽事件
     popLayerWindowq.viewPanel.ondrop = function(e) {
@@ -735,7 +1926,8 @@ function tpgConvert() {
             filters: [{
                 name: 'All Files',
                 extensions: CAN_HANDLE_SUFFIX_LIST_NO_DOT
-            }]
+            }],
+            defaultPath: popLayerWindowq.fileInput.value
         }, function(pathLaya) {
             if (pathLaya) {
                 popLayerWindowq.fileInput.value = pathLaya[0];
@@ -746,18 +1938,15 @@ function tpgConvert() {
     // 输出文件夹选择按钮
     popLayerWindowq.btnOutput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openDirectory", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: CAN_HANDLE_SUFFIX_LIST_NO_DOT
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: popLayerWindowq.fileOutput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
                 popLayerWindowq.fileOutput.value = pathLaya[0];
             }
         })
@@ -797,6 +1986,13 @@ function DrowProcess(msg, process, myCanvas, myctx, showPorcess)
     myctx.fillText(text, W / 2 - text_w / 2, H / 2 + 8);
 }
 
+/**
+ * 工具弹窗
+ *  - jscompressTool js压缩
+ *  - tpgConvert tpg格式转换
+ *  - bonetools 龙骨动画转换 | Spine动画转换
+ *  - psdtools Psd2UI
+ */
 function popLayerWindow()
 {
     this.popPanel = getElement("div", "compressJSFile");
@@ -824,7 +2020,14 @@ function popLayerWindow()
     setFocuInput(this.fileOutput);
     this.popPanelBackground.appendChild(this.fileOutput);
     this.fileOutput.style.top = "150px";
-    this.titleBackground = getElement("div", "titleBackground");
+    this.titleBackground = getElement("div", "common-tool-title");
+    this.titleBackground.innerHTML = `
+        <div class="common-tool-icon-wrapper">
+            <img class="common-tool-icon" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+        </div>
+        <div class="common-tool-title-content"></div>
+        <div class="common-tool-close"></div>
+    `;
     __Layadrag(this.popPanel, this.titleBackground);
     this.viewPanel.appendChild(this.titleBackground);
     this.btnInput = getElement("Button", "compressBtn");
@@ -837,23 +2040,22 @@ function popLayerWindow()
     this.tipdouwn = getElement("span", "compressJSFilePaneTipdown");
     // this.tipdouwn.innerHTML = "自动记录,智能推荐";
     this.popPanelBackground.appendChild(this.tipdouwn);
-    this.closeBtn = getElement("div", "closeBtn");
-    this.closeBtn.innerHTML = "×"
-    this.viewPanel.appendChild(this.closeBtn);
+    this.titleBackground.getElementsByClassName("common-tool-close")[0].onclick = () => {
+        codeMain.removePopLayer(this.popPanel);
+    }
     this.btnOK = getElement("Button", "layaBtnCustum");
     this.popPanelBackground.appendChild(this.btnOK);
     this.btnOK.style.top = "234px";
     this.btnOK.style.left = "206px"
     this.btnOK.innerText = `${codeMain.panel[23][langindex]}`//"确定";
 }
-function bonetools(title, type, isBatch = false)
+function bonetools(title, type)
 {
     var bonetoolsWindow = new popLayerWindow();
-    bonetoolsWindow.titleBackground.innerHTML = title + `${codeMain.panel[24][langindex]}`//"格式转换";
+    bonetoolsWindow.titleBackground.getElementsByClassName("common-tool-title-content")[0].innerHTML = `${title}${codeMain.panel[24][langindex]}` //"格式转换";
     bonetoolsWindow.fileInput.placeholder = `${codeMain.panel[25][langindex]}`//"拖入或者选择资源目录...";
     bonetoolsWindow.fileOutput.placeholder = `${codeMain.panel[26][langindex]}`// "选择资源输出路径...";
-    var localStrageKey = isBatch ? "layabonePathBatch" : "layabonePath";
-    var boneObj = localStorage.getItem(localStrageKey);
+    var boneObj = localStorage.getItem("layabonePath");
     if (boneObj)
     {
         boneObj = JSON.parse(boneObj);
@@ -862,11 +2064,6 @@ function bonetools(title, type, isBatch = false)
     }
     var myCanvas = getElement("canvas");
     var myctx = myCanvas.getContext("2d");
-    bonetoolsWindow.closeBtn.onclick = function()
-    {
-        // bonetoolsWindow.popPanel.parentNode.removeChild(bonetoolsWindow.popPanel);
-        codeMain.removePopLayer(bonetoolsWindow.popPanel);
-    }
     bonetoolsWindow.viewPanel.ondrop = function(e)
     {
         e.preventDefault();
@@ -891,7 +2088,7 @@ function bonetools(title, type, isBatch = false)
                 "inputPath": bonetoolsWindow.fileInput.value,
                 "outputPath": bonetoolsWindow.fileOutput.value
             };
-            localStorage.setItem(localStrageKey, JSON.stringify(boneObj));
+            localStorage.setItem("layabonePath", JSON.stringify(boneObj));
             bonetoolsWindow.viewPanel.appendChild(myCanvas);
             myCanvas.style.display = "block";
             bonetoolsWindow.popPanelBackground.style.display = "none";
@@ -923,45 +2120,37 @@ function bonetools(title, type, isBatch = false)
             }, function(err)
             {
                 alert(`${codeMain.panel[28][langindex]}` + err);
-            }, type, isBatch)
+            }, type)
         }
 
     };
-    bonetoolsWindow.btnInput.onclick = function()
-    {
+    bonetoolsWindow.btnInput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openDirectory", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: ['js']
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: bonetoolsWindow.fileInput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
                 bonetoolsWindow.fileInput.value = pathLaya[0];
                 bonetoolsWindow.fileOutput.value = pathLaya[0]
             }
         })
     }
-    bonetoolsWindow.btnOutput.onclick = function()
-    {
+    bonetoolsWindow.btnOutput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openDirectory", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: ['js']
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: bonetoolsWindow.fileOutput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
                 bonetoolsWindow.fileOutput.value = pathLaya[0]
             }
         })
@@ -971,7 +2160,7 @@ function bonetools(title, type, isBatch = false)
 function psdtools(title, type)
 {
     var psdtoolsWindow = new popLayerWindow();
-    psdtoolsWindow.titleBackground.innerHTML = title;//"格式转换";
+    psdtoolsWindow.titleBackground.getElementsByClassName("common-tool-title-content")[0].innerHTML = title; //"格式转换";
     psdtoolsWindow.fileInput.placeholder = `${codeMain.panel[25][langindex]}`//"拖入或者选择资源目录...";
     psdtoolsWindow.fileOutput.placeholder = `${codeMain.panel[26][langindex]}`// "选择资源输出路径...";
     var boneObj = localStorage.getItem("layaPsdPath");
@@ -983,11 +2172,6 @@ function psdtools(title, type)
     }
     var myCanvas = getElement("canvas");
     var myctx = myCanvas.getContext("2d");
-    psdtoolsWindow.closeBtn.onclick = function()
-    {
-        // bonetoolsWindow.popPanel.parentNode.removeChild(bonetoolsWindow.popPanel);
-        codeMain.removePopLayer(psdtoolsWindow.popPanel);
-    }
     psdtoolsWindow.viewPanel.ondrop = function(e)
     {
         e.preventDefault();
@@ -1053,44 +2237,36 @@ function psdtools(title, type)
         }
 
     };
-    psdtoolsWindow.btnInput.onclick = function()
-    {
+    psdtoolsWindow.btnInput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-            {
-                properties: ["openDirectory", 'createDirectory'],
-                filters: [
-                    {
-                        name: 'All Files',
-                        extensions: ['psd']
-                    }]
-            }, function(pathLaya)
-            {
-                if (pathLaya)
-                {
-                    psdtoolsWindow.fileInput.value = pathLaya[0];
-                    psdtoolsWindow.fileOutput.value = pathLaya[0]
-                }
-            })
+        dialogLaya.showOpenDialog({
+            properties: ["openDirectory", 'createDirectory'],
+            filters: [{
+                name: 'All Files',
+                extensions: ['psd']
+            }],
+            defaultPath: psdtoolsWindow.fileInput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
+                psdtoolsWindow.fileInput.value = pathLaya[0];
+                psdtoolsWindow.fileOutput.value = pathLaya[0]
+            }
+        })
     }
-    psdtoolsWindow.btnOutput.onclick = function()
-    {
+    psdtoolsWindow.btnOutput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-            {
-                properties: ["openDirectory", 'createDirectory'],
-                filters: [
-                    {
-                        name: 'All Files',
-                        extensions: ['psd']
-                    }]
-            }, function(pathLaya)
-            {
-                if (pathLaya)
-                {
-                    psdtoolsWindow.fileOutput.value = pathLaya[0]
-                }
-            })
+        dialogLaya.showOpenDialog({
+            properties: ["openDirectory", 'createDirectory'],
+            filters: [{
+                name: 'All Files',
+                extensions: ['psd']
+            }],
+            defaultPath: psdtoolsWindow.fileOutput.value
+        }, function(pathLaya) {
+            if (pathLaya) {
+                psdtoolsWindow.fileOutput.value = pathLaya[0]
+            }
+        })
     }
 }
 
@@ -1125,15 +2301,42 @@ function picToolsLaya()
     }
     popPanelBackground.style.top = "20px";
     var titleBackground = getElement("div", "titleBackground");
+    titleBackground = getElement("div", "common-tool-title");
+    titleBackground.innerHTML = `
+        <div class="common-tool-icon-wrapper">
+            <img class="common-tool-icon" title="${codeMain.panel[29][langindex]}" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+        </div>
+        <div class="common-tool-title-content">${codeMain.panel[29][langindex]}</div>
+        <div class="common-tool-close"></div>
+    `;
     __Layadrag(popPanel, titleBackground)
-    titleBackground.innerHTML = `${codeMain.panel[29][langindex]}`//"图集打包工具"
     viewPanel.appendChild(titleBackground);
     viewPanel.appendChild(popPanelBackground);
+    // 检查图集是否符合规范--需要有子目录
+    function checkDir(inputDir) {
+        let isExist = codeMain.fs.existsSync(inputDir);
+        if (!isExist) {
+            alert(codeMain.getPanelLang(39));
+            return false;
+        }
+        let subFileList = codeMain.fs.readdirSync(inputDir);
+        let 
+            subDir,
+            r;
+        for (let i = 0, len = subFileList.length; i < len; i++) {
+            subDir = inputDir + "/" + subFileList[i];
+            r = codeMain.fs.lstatSync(subDir);
+            if (r.isDirectory()) {
+                return true;
+            }
+        }
+        alert(codeMain.getPanelLang(487));
+    }
     var inputFile = getElement("input", "inputSmallinput");
     inputFile.style.left = "30px";
     inputFile.style.width = "380px";
     inputFile.style.top = "50px";
-    inputFile.placeholder = `${codeMain.panel[30][langindex]}`//"资源根目录...";
+    inputFile.placeholder = `${codeMain.panel[30][langindex]}`//"资源文件夹的父级目录...";
     inputFile.styleBlur = "inputSmallinput";
     setFocuInput(inputFile);
     picToolsObj && (inputFile.value = picToolsObj.inputPath);
@@ -1141,21 +2344,21 @@ function picToolsLaya()
     var btninput = getElement("Button", "compressBtn");
     btninput.style.top = "50px";
     btninput.innerHTML = `${codeMain.panel[22][langindex]}`//"浏览";
-    btninput.onclick = function()
-    {
+    btninput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openDirectory", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: ['js']
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: inputFile.value
+        }, function(pathLaya) {
+            let isCon = checkDir(pathLaya[0]);
+            if (!isCon) {
+                return;
+            }
+            if (pathLaya) {
                 inputFile.value = pathLaya[0];
                 outputFile.value = pathLaya[0];
             }
@@ -1174,21 +2377,17 @@ function picToolsLaya()
     var btnOutput = getElement("Button", "compressBtn");
     btnOutput.style.top = "100px";
     btnOutput.innerHTML = `${codeMain.panel[22][langindex]}`//"浏览";
-    btnOutput.onclick = function()
-    {
+    btnOutput.onclick = function() {
         var dialogLaya = electron.remote.dialog;
-        dialogLaya.showOpenDialog(
-        {
+        dialogLaya.showOpenDialog({
             properties: ["openDirectory", 'createDirectory'],
-            filters: [
-            {
+            filters: [{
                 name: 'All Files',
                 extensions: ['js']
-            }]
-        }, function(pathLaya)
-        {
-            if (pathLaya)
-            {
+            }],
+            defaultPath: outputFile.value
+        }, function(pathLaya) {
+            if (pathLaya) {
                 outputFile.value = pathLaya[0];
             }
         })
@@ -1230,14 +2429,7 @@ function picToolsLaya()
     inputScale.addEventListener("blur", function() {
         inputScale.value = inputScale.value || 1;
     });
-
-
-    var closeBtn = getElement("div", "closeBtn");
-    closeBtn.innerHTML = "×";
-    viewPanel.appendChild(closeBtn);
-    closeBtn.onclick = function()
-    {
-        // popPanel.parentNode.removeChild(popPanel);
+    titleBackground.getElementsByClassName("common-tool-close")[0].onclick = function() {
         codeMain.removePopLayer(popPanel);
     }
     var ti = getElement("div", "titleH");
@@ -1330,6 +2522,10 @@ function picToolsLaya()
             alert(`${codeMain.getPanelLang(39)}`);
             return;
         }
+        let isCon = checkDir(inputFile.value);
+        if (!isCon) {
+            return;
+        }
         var picToolsObj = {
             "inputPath": inputFile.value,
             "outputPath": outputFile.value
@@ -1412,8 +2608,15 @@ function LibsPanel()
     //创建背景
     var layerBackground = getElement("div", "layerBackground2");
     layaLayerPop.appendChild(layerBackground);
-    var titleBackground = getElement("div", "titleBackground");
-    titleBackground.innerHTML = `${codeMain.getPanelLang(40)}`//"类库管理";
+    var titleBackground;
+    titleBackground = getElement("div", "common-tool-title");
+    titleBackground.innerHTML = `
+        <div class="common-tool-icon-wrapper">
+            <img class="common-tool-icon" title="${codeMain.getPanelLang(40)}" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+        </div>
+        <div class="common-tool-title-content">${codeMain.getPanelLang(40)}</div>
+        <div class="common-tool-close"></div>
+    `;
     __Layadrag(layaLayerPop, layerBackground);
     layerBackground.appendChild(titleBackground);
     ////////////rightPanel//////////////////
@@ -1474,8 +2677,7 @@ function LibsPanel()
     for (var i = 0; i < libsVersion.length; i++)
     {
         var itemList = getElement("li", "libsPathList");
-        var img = getElement("img", "imgV");
-        img.src = "res/ide/icon/01.png";
+        var img = getElement("div", "image-01");
         itemList.appendChild(img);
         var title = getElement("a", "conAtitle");
         title.innerHTML = "&nbsp;" + libsVersion[i].version;
@@ -1543,9 +2745,9 @@ function LibsPanel()
 
         itemList.onclick = function(e)
         {
-            libcurrentSelectedLi && (libcurrentSelectedLi.style.backgroundColor = "");
+            libcurrentSelectedLi && (libcurrentSelectedLi.className = libcurrentSelectedLi.className.replace(" selected", ""));
             libcurrentSelectedLi = e.currentTarget;
-            libcurrentSelectedLi.style.backgroundColor = "#094771";
+            libcurrentSelectedLi.className += " selected";
             if (libcurrentSelectedLi.btn)
             {
                 libcurrentSelectedLi.btn.checked = true;
@@ -1556,26 +2758,20 @@ function LibsPanel()
     }
     ///
     /////-------------------关闭按钮------------
-    var closeBtn = getElement("li", "closeBtnLi");
-    layerBackground.appendChild(closeBtn);
-    var closeTile = getElement("span", "");
-    closeTile.innerHTML = "×";
-    closeBtn.appendChild(closeTile);
-    closeBtn.onmousedown = function(e)
-    {
-            // layaLayerPop.parentNode.removeChild(layaLayerPop);
+    titleBackground.getElementsByClassName("common-tool-close")[0].onclick = function() {
         codeMain.removePopLayer(layaLayerPop);
     }
         ///////////确定按钮
     var okBtn = getElement("button", "layaBtnCustum2");
     layerBackgroundrightPanel.appendChild(okBtn);
     okBtn.innerText = `${codeMain.getPanelLang(136)}`//"应用";
+    // 替换
     okBtn.onclick = function(e)
     {
         if (type != "as")
         {
-            var lib = enginepath + path.sep + radioLaya.libs + path.sep + "js" + path.sep + "libs";
-            codeMain.copyDir(path.dirname(lib) + path.sep + "LayaAir.d.ts", codeMain.workspacePath + path.sep + "libs");
+            var lib = enginepath + path.sep + radioLaya.libs + path.sep + type + path.sep + "libs";
+            codeMain.copyDir(path.dirname(lib) + path.sep + "ts", codeMain.workspacePath + path.sep + "libs");
         }
         else
         {
@@ -1595,7 +2791,7 @@ function popLayaerAnimation(tip)
     {
         //  document.body.removeChild(layaAnimationLayaer);
         tip.style.display = "none";
-    }, 1000)
+    }, 3000)
 }
 
 function layaInputFocus(e)
@@ -2541,7 +3737,7 @@ function checkPackToolVersion()
     var remoteFile = '/download/LayaAir/runtime/packversion.txt';
     //var remoteFile='/packversion.txt';
     var ver = '';
-    var http = require('http');
+    var http = codeMain.require('http');
     var options = {
         hostname: 'ldc.layabox.com',
         port: 80,
@@ -2606,7 +3802,7 @@ function checkapkAndsdk(checkJava)
         var generateAndroidApk = new GenerateAndroidApk.GenerateAndroidApk();
         if (!generateAndroidApk.checkJavaEnv())
         {
-            if (confirm(`codeMain.panel[79][langindex]`))
+            if (confirm(codeMain.panel[79][langindex]))
                 window.open('http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html');
 
             return false;
@@ -2844,6 +4040,9 @@ function __Layadrag(dlgTest, target)
 
     function down(event)
     {
+        if (event.target.className === "common-tool-close") { // 关闭按钮，不能移动
+            return;
+        }
         window.addEventListener("mouseup", up);
         window.addEventListener("mousemove", move);
         event = event || window.event;
@@ -2874,3 +4073,42 @@ function __Layadrag(dlgTest, target)
         dragging = false;
     }
 }
+
+/**
+ * 提示消息
+ * - show
+ * - hide
+ */
+window.tipPanel = {
+    instance: null,
+    show(title, content, closeFunc) {
+        var tipPanelEle = getElement("div", "tipPanel");
+        this.instance = tipPanelEle;
+        codeMain.addPopLayer(tipPanelEle);
+        tipPanelEle.innerHTML = `
+        <div class="tip-wrapper">
+            <div class="common-tool-title">
+                <div class="common-tool-icon-wrapper">
+                    <img class="common-tool-icon" title="${title}" src="skins/default/image/ide/layamaker-newpro.png" style="width: 18px; height: 20px;">
+                </div>
+                <div class="common-tool-title-content">${title}</div>
+                <div class="common-tool-close"></div>
+            </div>
+            <div class="tip-content">${content}</div>
+        </div>
+        `;
+        let titleEle = tipPanelEle.getElementsByClassName("common-tool-title")[0];
+        __Layadrag(tipPanelEle, titleEle);
+        tipPanelEle.getElementsByClassName("common-tool-close")[0].onclick = () => {
+            this.hide();
+            closeFunc instanceof Function && closeFunc();
+        };
+    },
+    hide() {
+        this.instance && codeMain.removePopLayer(this.instance);
+        this.instance = null;
+    },
+    isShow() {
+        return !!this.instance;
+    }
+};

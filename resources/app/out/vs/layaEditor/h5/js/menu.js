@@ -3,6 +3,7 @@
         var uiMenuDiv;
         var aksPageMenuDiv
         var langconfigmenu = require("./../../../layarepublic/lang/extension.js").Lang.menu;
+        var isCloudMode = window.globalMode === codeMain.globalModeType.layamaker;
         doOnLoad()
 
         function doOnLoad()
@@ -17,6 +18,7 @@
             codeMenuDiv.loadStruct(`
 <?xml version="1.0"?>
 <menu>
+  <item id="cloudMenu" text="">
     <item id="file" text="${codeMain.getMenuListLang(1)}">
      <item id="createlayapro" text="${codeMain.getMenuListLang(2)}">
         </item>
@@ -62,6 +64,10 @@
                 <item id ="laya_available_languages_zh-CN" text= "zh-CN"></item>
                 <item id ="laya_available_languages_en-US" text= "en-US"></item>
             </item>
+        </item>
+        <item id="tools.IDETheme" text="${codeMain.getMenuListLang(187)}">
+            <item id="ide.theme.dark" text="${codeMain.getMenuListLang(188)}"></item>
+            <item id="ide.theme.light" text="${codeMain.getMenuListLang(189)}"></item>
         </item>
         <item id="tools.ideConfig" text="${codeMain.getMenuListLang(180)}" />
         <item id="workbench.action.files.revert" text="${codeMain.getMenuListLang(20)}" />
@@ -170,7 +176,7 @@
         <item id="search.action.focusActiveEditor" text="${codeMain.getMenuListLang(56)}">
             <hotkey>${ctrlreplacecmd}+${shiftreplacecmd}+F</hotkey>
         </item>
-        <item id="workbench.view.git" text="Git">
+        <item id="workbench.view.scm" text="Git">
             <hotkey>${ctrlreplacecmd}+${shiftreplacecmd}+G</hotkey>
         </item>
         <item id="workbench.view.debug" text="${codeMain.getMenuListLang(57)}">
@@ -284,25 +290,27 @@
         <item id="tool.swfConvert" text="${codeMain.getMenuListLang(98)}"></item>
         <item id="tool.jsCompress" text="${codeMain.getMenuListLang(99)}"></item>
         <item id="tool.tpgCompress" text="${codeMain.getMenuListLang(182)}"></item>
+        <item id="tool.textureConvert" text="${codeMain.getMenuListLang(193)}"></item>
+        <item id="tool.textFilePackage" text="${codeMain.getMenuListLang(194)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
-        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.psdConvert" text="Psd2UI"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
-        <item id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
-        <item id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>
-        <item id="tool.3dConvert" text="${codeMain.getMenuListLang(107)}"></item>
+        <item enabled="${!isCloudMode}" id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
+        <item enabled="${!isCloudMode}" id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>
         <item id="tool.wxdevtool" text="${codeMain.getMenuListLang(179)}"></item>
     </item>
     <item id ="prolaya" text="${codeMain.getMenuListLang(108)}">
         <item id="libselection" text="${codeMain.getMenuListLang(109)}"></item>
         <item id="compilePro" text="${codeMain.getMenuListLang(176)}"></item>
-        <item id="publishPro" text="${codeMain.getMenuListLang(181)}"></item>
         <item id="compileAndRunPro" text="${codeMain.getMenuListLang(178)}"></item>
         <item id="publishPro2" text="${codeMain.getMenuListLang(177)}"></item>
+        <item id="publishPro3" text="${codeMain.getMenuListLang(191)}"></item>
     </item>
      <item id ="help" text="${codeMain.getMenuListLang(110)}">
       <item id="workbench.action.toggleDevTools" text="${codeMain.getMenuListLang(111)}">
+      </item>
+      <item id="layaReward" text="${codeMain.getMenuListLang(190)}">
       </item>
       <item id="layaboxPublic" text="${codeMain.getMenuListLang(112)}">
       </item>
@@ -316,12 +324,13 @@
       </item>
       <item id="changelog" text="${codeMain.getMenuListLang(117)}">
       </item>
+      <item enabled="${window.isLayaSecretMode}" id="switchIDE" text="${codeMain.getMenuListLang(185)}">
+      </item>
       <item id="version" text="${codeMain.getMenuListLang(118)}${codeMain.layaIDEVersion}">
       </item>
     </item>
-     <item id ="layaqrcodeshowqrcode" img="res/ide/wifi.png" text="${codeMain.getMenuListLang(119)}">
-     </item>
     </item>
+  </item>
 </menu>
 `);
             codeMenuDiv.setOpenMode("win");
@@ -358,29 +367,54 @@
             uicodeMenuDiv.loadStruct(`
 <?xml version="1.0"?>
 <menu>
+  <item id="cloudMenu" text="">
     <item id="file" text="${codeMain.getMenuListLang(1)}">
         <item id="file.newProject" text="${codeMain.getMenuListLang(2)}"></item>
-        <item id="file.newUntitledFile" text="${codeMain.getMenuListLang(3)}">
+        <item enabled="${!isCloudMode}" id="file.newUntitledFile" text="${codeMain.getMenuListLang(3)}">
             <hotkey>${ctrlreplacecmd}+N</hotkey>
         </item>
-        <item id="file.newDir" text="${codeMain.getMenuListLang(120)}">
+        <item enabled="${!isCloudMode}" id="file.newDir" text="${codeMain.getMenuListLang(120)}">
             <hotkey>${ctrlreplacecmd}+D</hotkey>
         </item>
-        <item type="separator"/>
-        <item id="file.openProject" text="${codeMain.getMenuListLang(5)}">
+        ${!isCloudMode ? '<item type="separator" />' : ''}
+        <item enabled="${!isCloudMode}" id="file.openProject" text="${codeMain.getMenuListLang(5)}">
         </item>
-        <item id="workbench.action.openRecent" text="${codeMain.getMenuListLang(8)}">
+        <item enabled="${!isCloudMode}" id="workbench.action.openRecent" text="${codeMain.getMenuListLang(8)}">
             <item id="workbench.action.clearEditorHistory" text="${codeMain.getMenuListLang(10)}"></item>
-            <item type="separator" />
+        <item type="separator" />
         </item>
-        <item id="file.convertProject" text="${codeMain.getMenuListLang(121)}"></item>
+        <item enabled="${!isCloudMode}" id="file.convertProject" text="${codeMain.getMenuListLang(121)}"></item>
         <item type="separator"/>
+        <item id="perfernences" text="${codeMain.getMenuListLang(173)}">
+            <item id="workbench.action.openWorkspaceSettings" text="${codeMain.getMenuListLang(14)}"></item>
+            <item type="separator" />
+            <item id="workbench.action.openGlobalKeybindings" text="${codeMain.getMenuListLang(15)}"></item>
+            <item id="workbench.extensions.action.showRecommendedKeymapExtensions" text="${codeMain.getMenuListLang(16)}"></item>
+            <item type="separator" />
+            <item id="workbench.action.openSnippets" text="${codeMain.getMenuListLang(17)}"></item>
+            <item type="separator" />
+            <item id="workbench.action.selectTheme" text="${codeMain.getMenuListLang(18)}"></item>
+            <item id="workbench.action.selectIconTheme" text="${codeMain.getMenuListLang(19)}"></item>
+            <item id ="laya_available_languages" text ="${codeMain.getMenuListLang(175)}">
+                <item id ="laya_available_languages_zh-CN" text= "zh-CN"></item>
+                <item id ="laya_available_languages_en-US" text= "en-US"></item>
+            </item>
+        </item>
+        <item id="tools.IDETheme" text="${codeMain.getMenuListLang(187)}">
+            <item id="ide.theme.dark" text="${codeMain.getMenuListLang(188)}"></item>
+            <item id="ide.theme.light" text="${codeMain.getMenuListLang(189)}"></item>
+        </item>
         <item id="file.setPro" text="${codeMain.getMenuListLang(122)}">
             <hotkey>F9</hotkey>
         </item>
         <item id="file.settingPage" text="${codeMain.getMenuListLang(123)}">
+            <hotkey>${ctrlreplacecmd}+${shiftreplacecmd}+P</hotkey>
+        </item>
+        <item id="file.openPage" text="${codeMain.getMenuListLang(192)}">
             <hotkey>${ctrlreplacecmd}+P</hotkey>
         </item>
+        <item id="file.settingPro" text="${codeMain.getMenuListLang(162)}"></item>
+        <item id="libselection" text="${codeMain.getMenuListLang(109)}"></item>
         <item id="file.refreshEditor" text="${codeMain.getMenuListLang(24)}"></item>
     </item>
     <item id="edit" text="${codeMain.getMenuListLang(124)}">
@@ -451,7 +485,6 @@
       <item id="moveViewEd" text="${codeMain.getMenuListLang(147)}">
       </item>
       <item id="showViewEd" text="${codeMain.getMenuListLang(148)}">
-            <hotkey>F8</hotkey>
       </item>
         <item id="shoeViewDeEd" text="${codeMain.getMenuListLang(149)}">
             <hotkey>${ctrlreplacecmd}+${shiftreplacecmd}+R</hotkey>
@@ -462,60 +495,43 @@
         <item id="downEd" text="${codeMain.getMenuListLang(151)}">
             <hotkey>${ctrlreplacecmd}+↓</hotkey>
       </item>
+      <item id="resetPanel" text="${codeMain.getMenuListLang(161)}">
+             <hotkey>F3</hotkey>
+      </item>
     </item>
     <item id="tool" text="${codeMain.getMenuListLang(97)}">
         <item id="tool.swfConvert" text="${codeMain.getMenuListLang(98)}"></item>
         <item id="tool.jsCompress" text="${codeMain.getMenuListLang(99)}"></item>
         <item id="tool.tpgCompress" text="${codeMain.getMenuListLang(182)}"></item>
+        <item id="tool.textureConvert" text="${codeMain.getMenuListLang(193)}"></item>
+        <item id="tool.textFilePackage" text="${codeMain.getMenuListLang(194)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
-        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.psdConvert" text="Psd2UI"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
-        <item id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
-        <item id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>
-        <item id="tool.3dConvert" text="${codeMain.getMenuListLang(107)}"></item>
+        <item enabled="${!isCloudMode}" id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
+        <item enabled="${!isCloudMode}" id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>
         <item id="tool.wxdevtool" text="${codeMain.getMenuListLang(179)}"></item>
-    </item>
-    <item id="window" text="${codeMain.getMenuListLang(152)}">
-        <item id="movclipPanel" text="${codeMain.getMenuListLang(153)}"></item>
-        <item id="FramePropPanel" text="${codeMain.getMenuListLang(154)}"></item>
-        <item id="projPanelEd" text="${codeMain.getMenuListLang(155)}"></item>
-        <item id="resPanelEd" text="${codeMain.getMenuListLang(156)}"></item>
-        <item id="objPanelEd" text="${codeMain.getMenuListLang(157)}"></item>
-        <item id="displayTreePanel" text="${codeMain.getMenuListLang(158)}"></item>
-        <item id="CompPanel" text="${codeMain.getMenuListLang(159)}"></item>
-        <item id="compPanel" text="${codeMain.getMenuListLang(160)}"></item>
-        <item id="resetPanel" text="${codeMain.getMenuListLang(161)}">
-             <hotkey>F3</hotkey>
-        </item>
-    </item>
-    <item id ="prolaya" text="${codeMain.getMenuListLang(174)}">
-        <item id="file.settingPro" text="${codeMain.getMenuListLang(162)}"></item>
-        <item id="libselection" text="${codeMain.getMenuListLang(109)}"></item>
     </item>
     <item id="out" text="${codeMain.getMenuListLang(163)}">
         <item id="pushEd" text="${codeMain.getMenuListLang(163)}">
             <hotkey>F12</hotkey>
         </item>
-        <item id="cleanPush" text="${codeMain.getMenuListLang(164)}">
+        <item enabled="${!isCloudMode}" id="cleanPush" text="${codeMain.getMenuListLang(164)}">
             <hotkey>${ctrlreplacecmd}+F12</hotkey>
         </item>
-         <item id="laya.exportcode" text="${codeMain.getMenuListLang(165)}">
+         <item enabled="${!isCloudMode}" id="laya.exportcode" text="${codeMain.getMenuListLang(165)}">
             <hotkey>F11</hotkey>
         </item>
-        <item id="pushFinalEd" text="${codeMain.getMenuListLang(166)}">
+        <item enabled="${!isCloudMode}" id="pushFinalEd" text="${codeMain.getMenuListLang(166)}">
         </item>
-        <item id="laya.lang" text="${codeMain.getMenuListLang(167)}">
+        <item enabled="${!isCloudMode}" id="laya.lang" text="${codeMain.getMenuListLang(167)}">
         </item>
-        <item id="refreshPanelEd" text="${codeMain.getMenuListLang(168)}">
-             <hotkey>F5</hotkey>
+        <item enabled="${!isCloudMode}" id="refreshPanelEd" text="${codeMain.getMenuListLang(168)}">
         </item>
-        <item id="refreshPagePanelEd" text="${codeMain.getMenuListLang(169)}">
-             <hotkey>F6</hotkey>
+        <item enabled="${!isCloudMode}" id="refreshPagePanelEd" text="${codeMain.getMenuListLang(169)}">
         </item>
-        <item id="refreshResPanelEd" text="${codeMain.getMenuListLang(170)}">
-             <hotkey>F7</hotkey>
+        <item enabled="${!isCloudMode}" id="refreshResPanelEd" text="${codeMain.getMenuListLang(170)}">
         </item>
         <item id="findNoPageEd" text="${codeMain.getMenuListLang(171)}">
              <hotkey>F4</hotkey>
@@ -525,6 +541,8 @@
      </item>
      <item id ="help" text="${codeMain.getMenuListLang(110)}">
       <item id="workbench.action.toggleDevTools" text="${codeMain.getMenuListLang(111)}">
+      </item>
+      <item id="layaReward" text="${codeMain.getMenuListLang(190)}">
       </item>
       <item id="layaboxPublic" text="${codeMain.getMenuListLang(112)}">
       </item>
@@ -538,9 +556,12 @@
       </item>
       <item id="changelog" text="${codeMain.getMenuListLang(117)}">
       </item>
+      <item enabled="${window.isLayaSecretMode}" id="switchIDE" text="${codeMain.getMenuListLang(185)}">
+      </item>
       <item id="version" text="${codeMain.getMenuListLang(118)}${codeMain.layaIDEVersion}">
       </item>
     </item>
+  </item>
 </menu>
 `);         
             uicodeMenuDiv.detachEvent("extensions")
@@ -565,6 +586,10 @@
                 else if (id.indexOf("extensionsUIMenu") != -1)
                 {
                     var notice = id.split("$");
+                    if (notice[1] === "textFilePackage") { // 合并文件
+                        codeMain.mergeFile();
+                        return;
+                    }
                     ide.managers.Notice.notify(notice[1]);
                     return
                 }
@@ -587,32 +612,41 @@
             aksPageMenuDiv.loadStruct(`
 <?xml version="1.0"?>
 <menu>
+<item id="cloudMenu" text="">
     <item id="file" text="${codeMain.getMenuListLang(1)}">
        <item id="createlayapro" text="${codeMain.getMenuListLang(2)}">
-        </item>
-        <item id="workbench.action.files.newUntitledFile" text="${codeMain.getMenuListLang(3)}">
-            <hotkey>${ctrlreplacecmd}+N</hotkey>
         </item>
         <item id="workbench.action.newWindow" text="${codeMain.getMenuListLang(4)}">
             <hotkey>${ctrlreplacecmd}+${shiftreplacecmd}+N</hotkey>
         </item>
         <item type="separator" />
-        <item id="workbench.action.openProLaya" text="${codeMain.getMenuListLang(5)}"> </item>
+        <item id ="laya_available_languages" text ="${codeMain.getMenuListLang(175)}">
+            <item id ="laya_available_languages_zh-CN" text= "zh-CN"></item>
+            <item id ="laya_available_languages_en-US" text= "en-US"></item>
+        </item>
+        <item id="tools.IDETheme" text="${codeMain.getMenuListLang(187)}">
+            <item id="ide.theme.dark" text="${codeMain.getMenuListLang(188)}"></item>
+            <item id="ide.theme.light" text="${codeMain.getMenuListLang(189)}"></item>
+        </item>
+        <item enabled="${!isCloudMode}" id="workbench.action.openProLaya" text="${codeMain.getMenuListLang(5)}"> </item>
+        <item id="workbench.action.reloadWindow" text="${codeMain.getMenuListLang(24)}" />
     </item>
     <item id="tool" text="${codeMain.getMenuListLang(97)}">
         <item id="tool.swfConvert" text="${codeMain.getMenuListLang(98)}"></item>
         <item id="tool.jsCompress" text="${codeMain.getMenuListLang(99)}"></item>
         <item id="tool.tpgCompress" text="${codeMain.getMenuListLang(182)}"></item>
+        <item id="tool.textureConvert" text="${codeMain.getMenuListLang(193)}"></item>
+        <item id="tool.textFilePackage" text="${codeMain.getMenuListLang(194)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
-        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
-        <item id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
-        <item id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>
-        <item id="tool.3dConvert" text="${codeMain.getMenuListLang(107)}"></item>
+        <item enabled="${!isCloudMode}" id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
+        <item enabled="${!isCloudMode}" id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>
     </item>
   <item id ="help" text="${codeMain.getMenuListLang(110)}">
       <item id="workbench.action.toggleDevTools" text="${codeMain.getMenuListLang(111)}">
+      </item>
+      <item id="layaReward" text="${codeMain.getMenuListLang(190)}">
       </item>
       <item id="layaboxPublic" text="${codeMain.getMenuListLang(112)}">
       </item>
@@ -626,8 +660,11 @@
       </item>
       <item id="changelog" text="${codeMain.getMenuListLang(117)}">
       </item>
+      <item enabled="${window.isLayaSecretMode}" id="switchIDE" text="${codeMain.getMenuListLang(185)}">
+      </item>
       <item id="version" text="${codeMain.getMenuListLang(118)}${codeMain.layaIDEVersion}">
       </item>
+  </item>
 </menu>
 `);
             aksPageMenuDiv.setOpenMode("win");
