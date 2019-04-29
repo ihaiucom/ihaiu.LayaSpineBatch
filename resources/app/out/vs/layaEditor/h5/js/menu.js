@@ -294,6 +294,7 @@
         <item id="tool.textFilePackage" text="${codeMain.getMenuListLang(194)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
+        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.psdConvert" text="Psd2UI"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
         <item enabled="${!isCloudMode}" id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
@@ -507,6 +508,7 @@
         <item id="tool.textFilePackage" text="${codeMain.getMenuListLang(194)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
+        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.psdConvert" text="Psd2UI"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
         <item enabled="${!isCloudMode}" id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
@@ -639,6 +641,7 @@
         <item id="tool.textFilePackage" text="${codeMain.getMenuListLang(194)}"></item>
         <item id="tool.dbConvert" text="${codeMain.getMenuListLang(100)}"></item>
         <item id="tool.spineConvert" text="${codeMain.getMenuListLang(101)}"></item>
+        <item id="tool.spineConvertBatch" text="批量${codeMain.getMenuListLang(101)}"></item>
         <item id="tool.atlaPack" text="${codeMain.getMenuListLang(102)}"></item>
         <item enabled="${!isCloudMode}" id="tool.runtimeDownload" text="${codeMain.getMenuListLang(103)}"></item>
         <item enabled="${!isCloudMode}" id="tool.appBuild" text="${codeMain.getMenuListLang(106)}"></item>

@@ -1811,25 +1811,153 @@
 			this._totalNum=0;
 			this.nodePath=require("path");
 			this.fs=require("fs");
+			this.isBatch = false;
+			this.mInPath = null;
 		}
 
 		__class(DragonBoneTools,'dragonBones.DragonBoneTools');
 		var __proto=DragonBoneTools.prototype;
-		__proto.loadFile=function(path,outPath,completeFun,failFun,type){
+		__proto.loadFile=function(path,outPath,completeFun,failFun,type, isBatch = false){
 			(type===void 0)&& (type=0);
 			if (this.mTools==null){
 				this.mTools=new BoneAniTools();
 			}
+			this.isBatch = isBatch;
+			this.mInPath = path;
 			this._completeNum=0;
 			this.mType=type;
 			this.mFileList.length=0;
 			this.mOutPath=outPath;
 			this.mFailFun=failFun;
 			this.mCompleteFun=completeFun;
-			this.walk(path,0,this.handleFile,this.mFileList);
-			this._totalNum=this.mFileList.length;
-			this.next();
+
+			if (isBatch)
+			{
+				this.batchRun();
+			}
+			else
+			{
+				this.walk(path, 0, this.handleFile, this.mFileList);
+				this._totalNum = this.mFileList.length;
+				this.next();
+
+			}
 		}
+
+
+		__proto.batchRun = function ()
+		{
+			
+			alert("this.mInPath=" + this.mInPath);
+			var _$this = this;
+			var tInfo = "";
+			var imgList = this.imgList = [];
+			// var imgItem = { in: [imgDir, 0, imgName], out: imgOutPath };
+			var styles = this.fs.readdirSync(this.mInPath);
+			styles.forEach(function (stylename)
+			{
+			alert("stylename=" + stylename);
+				var styleDir = _$this.nodePath.join(_$this.mInPath, stylename);
+				var stats = _$this.fs.statSync(styleDir);
+				if (stats.isDirectory())
+				{
+					var imgDirList = _$this.fs.readdirSync(styleDir);
+					imgDirList.forEach(function (imagename)
+					{
+						var imgDir = _$this.nodePath.join(styleDir, imagename);
+						var imgItem = {};
+						imgItem["in"] = [imgDir, 0, imagename];
+						imgItem["out"] = _$this.nodePath.join(_$this.mOutPath, stylename, imagename);
+						imgList.push(imgItem);
+						tInfo += "\n imgDir:" + imgDir;
+						tInfo += "\n imagename:" + imagename;
+						tInfo += "\n out:" + imgItem["out"];
+					});
+				}
+			});
+
+
+
+						
+			alert("tInfo=" + tInfo);
+			this._totalNum = imgList.length;
+			this._completeNum = 0;
+			this.batchNext();
+
+		}
+
+		__proto.batchNext = function ()
+		{
+			if (this.imgList.length > 0)
+			{
+				this._completeNum++;
+				var imgItem = this.imgList.shift();
+				var tPath = imgItem["in"];
+				var outPath = imgItem["out"];
+				if ((tPath instanceof Array))
+				{
+					var tArr = tPath;
+					if (tArr.length == 4)
+					{
+						this.mTools.loadFile(this.nodePath, this, tPath[0], outPath, this.batchItemCompleteHandler, this.batchItemFailHandler, this.mType, tPath[1], tArr[2], tArr[3]);
+					} else
+						if (tArr.length == 3)
+						{
+							this.mTools.loadFile(this.nodePath, this, tPath[0], outPath, this.batchItemCompleteHandler, this.batchItemFailHandler, this.mType, tPath[1], tArr[2]);
+						} else
+						{
+							this.mTools.loadFile(this.nodePath, this, tPath[0], outPath, this.batchItemCompleteHandler, this.batchItemFailHandler, this.mType, tPath[1]);
+						}
+				} else
+				{
+					this.mTools.loadFile(this.nodePath, this, tPath, outPath, this.batchItemCompleteHandler, this.batchItemFailHandler, this.mType);
+				}
+			} else
+			{
+				var tInfo = "";
+				if (this._totalNum > 0)
+				{
+					var tStr = "符合条件的有" + this._totalNum + "个，已有" + this._completeNum + "个成功转换";
+					tInfo += tStr;
+				} else
+				{
+					tInfo += "没找到可以被转换的文件,请确认文件夹名跟文件名是否一致";
+				}
+				this.mCompleteFun.call(null, tInfo);
+			}
+		}
+
+
+
+
+		__proto.batchItemFailHandler = function (errorInfo)
+		{
+			this.mFailFun.call(null, errorInfo);
+		}
+
+		__proto.batchItemCompleteHandler = function (sucess, data, picInput, picOutput)
+		{
+
+			var buffer = new Buffer(data.byteLength);
+			var view = new Uint8Array(data);
+			for (var i = 0; i < buffer.length; ++i)
+			{
+				buffer[i] = view[i];
+			}
+			this.mkdirsSyncLaya(this.nodePath.dirname(sucess));
+			this.fs.writeFileSync(sucess, buffer);
+			if (picInput)
+			{
+				for (i = 0; i < picInput.length; i++)
+				{
+					this.mkdirsSyncLaya(this.nodePath.dirname(picOutput[i]));
+					this.fs.writeFileSync(picOutput[i], this.fs.readFileSync(picInput[i]));
+				}
+			}
+			this.mTools.clear();
+			this.batchNext();
+		}
+
 
 		__proto.next=function(){
 			if (this.mFileList.length > 0){
